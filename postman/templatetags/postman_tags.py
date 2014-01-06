@@ -11,6 +11,8 @@ from django.template import Node
 from django.template import TemplateSyntaxError
 from django.template import Library
 from django.template.defaultfilters import date
+from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from postman.models import ORDER_BY_KEY, ORDER_BY_MAPPER, Message,\
@@ -41,10 +43,10 @@ def or_me(value, arg):
 
     """
     user_model = get_user_model()
-    if not isinstance(value, (unicode, str)):
-        value = (get_user_representation if isinstance(value, user_model) else unicode)(value)
-    if not isinstance(arg, (unicode, str)):
-        arg = (get_user_representation if isinstance(arg, user_model) else unicode)(arg)
+    if not isinstance(value, six.string_types):
+        value = (get_user_representation if isinstance(value, user_model) else force_text)(value)
+    if not isinstance(arg, six.string_types):
+        arg = (get_user_representation if isinstance(arg, user_model) else force_text)(arg)
     return _('<me>') if value == arg else value
 
 

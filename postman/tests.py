@@ -24,7 +24,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     # 'django.contrib.sites',  # is optional
     'django.contrib.admin',
-    # 'pagination',  # or use the mock
+    # 'pagination',  # has to be before postman ; or use the mock
     # 'ajax_select',  # is an option
     # 'notification',  # is an option
     'postman',
@@ -52,8 +52,10 @@ from django.db.models import Q
 from django.http import QueryDict
 from django.template import Template, Context, TemplateSyntaxError, TemplateDoesNotExist
 from django.test import TestCase
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.formats import localize
+from django.utils import six
+from django.utils.six.moves import reload_module
 try:
     from django.utils.timezone import now  # Django 1.4 aware datetimes
 except ImportError:
@@ -77,7 +79,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.0.2")
+        self.assertEqual(sys.modules['postman'].__version__, "3.1.0")
 
 
 class BaseTest(TestCase):
@@ -182,14 +184,14 @@ class BaseTest(TestCase):
         "Reload some modules after a change in settings."
         clear_url_caches()
         try:
-            reload(sys.modules['postman.utils'])
-            reload(sys.modules['postman.fields'])
-            reload(sys.modules['postman.forms'])
-            reload(sys.modules['postman.views'])
-            reload(sys.modules['postman.urls'])
+            reload_module(sys.modules['postman.utils'])
+            reload_module(sys.modules['postman.fields'])
+            reload_module(sys.modules['postman.forms'])
+            reload_module(sys.modules['postman.views'])
+            reload_module(sys.modules['postman.urls'])
         except KeyError:  # happens once at the setUp
             pass
-        reload(get_resolver(get_urlconf()).urlconf_module)
+        reload_module(get_resolver(get_urlconf()).urlconf_module)
 
 
 class ViewTest(BaseTest):
@@ -1576,7 +1578,8 @@ class FiltersTest(BaseTest):
             pass
         # (1.2) template/__init__.py/_render_value_in_context()
         # (1.3) template/base.py/_render_value_in_context()
-        default = force_unicode(localize(dt))
+        # (1.6) template/base.py/render_value_in_context()
+        default = force_text(localize(dt))
 
         self.check_compact_date(dt, default, format='')
         self.check_compact_date(dt, default, format='one')
@@ -1673,8 +1676,9 @@ class UtilsTest(BaseTest):
         # a property name
         settings.POSTMAN_SHOW_USER_AS = 'email'
         self.assertEqual(get_user_representation(self.user1), "foo@domain.com")
-        settings.POSTMAN_SHOW_USER_AS = b'email'
-        self.assertEqual(get_user_representation(self.user1), "foo@domain.com")
+        if not six.PY3:  # avoid six.PY2, not available in six 1.2.0
+            settings.POSTMAN_SHOW_USER_AS = b'email'  # usage on PY3 is nonsense
+            self.assertEqual(get_user_representation(self.user1), "foo@domain.com")
         # a method name
         settings.POSTMAN_SHOW_USER_AS = 'get_absolute_url'  # can't use get_full_name(), an empty string in our case
         self.assertEqual(get_user_representation(self.user1), "/users/foo/")
