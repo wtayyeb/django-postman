@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
-import new
 from types import MethodType
 
 from django.db.models.sql.query import Query
+from django.utils import six
 
 
 class Proxy(object):
@@ -17,7 +17,10 @@ class Proxy(object):
         target = self._target
         f = getattr(target, name)
         if isinstance(f, MethodType):
-            return new.instancemethod(f.im_func, self, target.__class__)
+            if six.PY3:
+                return MethodType(f.__func__, self)
+            else:
+                return MethodType(f.__func__, self, target.__class__)
         else:
             return f
 

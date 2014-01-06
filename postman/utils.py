@@ -5,7 +5,7 @@ from textwrap import TextWrapper
 
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 # make use of a favourite notifier app such as django-notification
@@ -45,7 +45,7 @@ def format_body(sender, body, indent=_("> "), width=WRAP_WIDTH):
     Used for quoting messages in replies.
 
     """
-    indent = force_unicode(indent)  # join() doesn't work on lists with lazy translation objects
+    indent = force_text(indent)  # join() doesn't work on lists with lazy translation objects ; nor startswith()
     wrapper = TextWrapper(width=width, initial_indent=indent, subsequent_indent=indent)
     # rem: TextWrapper doesn't add the indent on an empty text
     quote = '\n'.join([line.startswith(indent) and indent+line or wrapper.fill(line) or indent for line in body.splitlines()])

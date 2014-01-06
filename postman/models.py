@@ -10,6 +10,8 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.query import QuerySet
+from django.utils import six
+from django.utils.encoding import force_text, python_2_unicode_compatible
 try:
     from django.utils.text import Truncator  # Django 1.4
 except ImportError:
@@ -67,18 +69,18 @@ def get_user_representation(user):
     Return a User representation for display, configurable through an optional setting.
     """
     show_user_as = getattr(settings, 'POSTMAN_SHOW_USER_AS', None)
-    if isinstance(show_user_as, (unicode, str)):
+    if isinstance(show_user_as, six.string_types):
         attr = getattr(user, show_user_as, None)
         if callable(attr):
             attr = attr()
         if attr:
-            return unicode(attr)
+            return force_text(attr)
     elif callable(show_user_as):
         try:
-            return unicode(show_user_as(user))
+            return force_text(show_user_as(user))
         except:
             pass
-    return unicode(user)  # default value, or in case of empty attribute or exception
+    return force_text(user)  # default value, or in case of empty attribute or exception
 
 
 class MessageManager(models.Manager):
@@ -105,9 +107,11 @@ class MessageManager(models.Manager):
         else:
             qs = qs.extra(select={'count': '{0}.count'.format(qs.query.pm_alias_prefix)})
             qs.query.pm_set_extra(table=(
+                # extra columns are always first in the SELECT query
                 self.filter(lookups, thread_id__isnull=True).extra(select={'count': 0})\
                     .values_list('id', 'count').order_by(),
-                self.filter(lookups, thread_id__isnull=False).values('thread').annotate(id=models.Max('pk'), count=models.Count('pk'))\
+                # use separate annotate() to keep control of the necessary order
+                self.filter(lookups, thread_id__isnull=False).values('thread').annotate(count=models.Count('pk')).annotate(id=models.Max('pk'))\
                     .values_list('id', 'count').order_by(),
             ))
             return qs
@@ -221,6 +225,7 @@ class MessageManager(models.Manager):
         ).update(read_at=now())
 
 
+@python_2_unicode_compatible
 class Message(models.Model):
     """
     A message between a User and another User or an AnonymousUser.
@@ -256,7 +261,7 @@ class Message(models.Model):
         verbose_name_plural = _("messages")
         ordering = ['-sent_at', '-id']
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0}>{1}:{2}".format(self.obfuscated_sender, self.obfuscated_recipient, Truncator(self.subject).words(5))
 
     def get_absolute_url(self):
@@ -293,7 +298,8 @@ class Message(models.Model):
 
         """
         email = self.email
-        digest = hashlib.md5(email + settings.SECRET_KEY).hexdigest()
+        data = email + settings.SECRET_KEY
+        digest = hashlib.md5(data.encode()).hexdigest()  # encode(): py3 needs a buffer of bytes
         shrunken_digest = '..'.join((digest[:4], digest[-4:]))  # 32 characters is too long and is useless
         bits = email.split('@')
         if len(bits) != 2:

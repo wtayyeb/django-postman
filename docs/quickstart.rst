@@ -6,17 +6,19 @@ Quick start guide
 Requisites and dependances
 --------------------------
 
-Python version >= 2.6
+Python version >= 2.6 or >= 3.3
 
 Some reasons:
 
-* use of ``str.format()``
+* (2.6) use of ``str.format()``
 
-Django version >= 1.3
+Django version >= 1.4.2 on py2, >= 1.5.5 on py3
 
 Some reasons:
 
-* use of class-based views
+* (1.5.5/py3) Six version >= 1.4.0
+* (1.4.2) use of the Six library for supporting Python 2 and 3 in a single codebase
+* (1.3) use of class-based views
 
 Installation
 ------------

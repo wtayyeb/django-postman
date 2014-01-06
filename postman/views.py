@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-import urlparse
 
 from django.conf import settings
 from django.contrib import messages
@@ -14,6 +13,10 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
+try:
+    from django.utils.six.moves.urllib.parse import urlsplit, urlunsplit  # Django 1.4.11, 1.5.5
+except ImportError:
+    from urlparse import urlsplit, urlunsplit
 try:
     from django.utils.timezone import now  # Django 1.4 aware datetimes
 except ImportError:
@@ -39,8 +42,8 @@ csrf_protect_m = method_decorator(csrf_protect)
 def _get_referer(request):
     """Return the HTTP_REFERER, if existing."""
     if 'HTTP_REFERER' in request.META:
-        sr = urlparse.urlsplit(request.META['HTTP_REFERER'])
-        return urlparse.urlunsplit(('', '', sr.path, sr.query, sr.fragment))
+        sr = urlsplit(request.META['HTTP_REFERER'])
+        return urlunsplit(('', '', sr.path, sr.query, sr.fragment))
 
 
 ########
@@ -165,7 +168,7 @@ class ComposeMixin(object):
                 'exchange_filter': self.exchange_filter,
                 'max': self.max,
                 'site': get_current_site(self.request),
-            })        
+            })
         return kwargs
 
     def get_success_url(self):
