@@ -359,12 +359,12 @@ class Message(models.Model):
         """Return the number of accepted responses."""
         return self.next_messages.filter(moderation_status=STATUS_ACCEPTED).count()
 
-    def quote(self, format_subject, format_body):
+    def quote(self, format_subject, format_body=None):
         """Return a dictionary of quote values to initiate a reply."""
-        return {
-            'subject': format_subject(self.subject)[:self.SUBJECT_MAX_LENGTH],
-            'body': format_body(self.obfuscated_sender, self.body),
-        }
+        values = {'subject': format_subject(self.subject)[:self.SUBJECT_MAX_LENGTH]}
+        if format_body:
+            values['body'] = format_body(self.obfuscated_sender, self.body)
+        return values
 
     def clean(self):
         """Check some validity constraints."""
