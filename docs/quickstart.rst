@@ -110,6 +110,14 @@ You may specify some additional configuration options in your :file:`settings.py
     (misspelled attribute name, empty result, ...), or the value is a function and an exception is raised
     (but any result, even empty, is valid).
 
+``POSTMAN_QUICKREPLY_QUOTE_BODY``
+    *New in version 3.2.0.*
+
+    Set it to True if you want the original message to be quoted when replying directly from the display view.
+    This setting does not apply to the reply view in which quote is the basic behaviour.
+
+    *Defaults to*: False.
+
 ``POSTMAN_NOTIFIER_APP``
     A notifier application name, used in preference to the basic emailing,
     to notify users of their rejected or received messages.
@@ -230,6 +238,7 @@ Examples
     # POSTMAN_DISABLE_USER_EMAILING = True  # default is False
     # POSTMAN_AUTO_MODERATE_AS = True  # default is None
     # POSTMAN_SHOW_USER_AS = 'get_full_name'  # default is None
+    # POSTMAN_QUICKREPLY_QUOTE_BODY = True  # default is False
     # POSTMAN_NOTIFIER_APP = None  # default is 'notification'
     # POSTMAN_MAILER_APP = None  # default is 'mailer'
     # POSTMAN_AUTOCOMPLETER_APP = {

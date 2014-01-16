@@ -79,7 +79,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.1.0")
+        self.assertEqual(sys.modules['postman'].__version__, "3.2.0a1")
 
 
 class BaseTest(TestCase):
@@ -97,7 +97,9 @@ class BaseTest(TestCase):
             'POSTMAN_DISALLOW_COPIES_ON_REPLY',
             'POSTMAN_DISABLE_USER_EMAILING',
             'POSTMAN_AUTO_MODERATE_AS',
+            'POSTMAN_NOTIFIER_APP',
             'POSTMAN_SHOW_USER_AS',
+            'POSTMAN_QUICKREPLY_QUOTE_BODY',
         ):
             if hasattr(settings, a):
                 delattr(settings, a)
@@ -477,6 +479,12 @@ class ViewTest(BaseTest):
         self.assertContains(response, '\n\nbar wrote:\n&gt; this is my body\n</textarea>')
         self.assertEqual(response.context['recipient'], 'bar')
 
+        settings.POSTMAN_QUICKREPLY_QUOTE_BODY = True  # no influence here, acts only for Quick Reply
+        self.reload_modules()
+        response = self.client.get(url)
+        self.assertContains(response, 'value="Re: s"')
+        self.assertContains(response, '\n\nbar wrote:\n&gt; this is my body\n</textarea>')
+
     def test_reply_formatters(self):
         "Test the 'formatters' parameter."
         template = "postman/reply.html"
@@ -486,7 +494,7 @@ class ViewTest(BaseTest):
         response = self.client.get(url)
         self.assertTemplateUsed(response, template)
         self.assertContains(response, 'value="Re_ s"')
-        self.assertContains(response, 'bar _ this is my body</textarea>')
+        self.assertContains(response, 'bar _ this is my body</textarea>')  # POSTMAN_QUICKREPLY_QUOTE_BODY setting is not involved
 
     def test_reply_auto_complete(self):
         "Test the 'autocomplete_channel' parameter."
@@ -629,7 +637,7 @@ class ViewTest(BaseTest):
         "Test permission, what template and form are used, set-as-read."
         template = "postman/view.html"
         pk1 = self.c12().pk
-        pk2 = self.c21().pk
+        pk2 = self.c21(body="this is my body").pk
         url = reverse('postman_view', args=[pk1])
         # anonymous
         response = self.client.get(url)
@@ -649,7 +657,14 @@ class ViewTest(BaseTest):
         self.assertEqual(response.context['reply_to_pk'], pk2)
         from postman.forms import QuickReplyForm
         self.assertTrue(isinstance(response.context['form'], QuickReplyForm))
+        self.assertNotContains(response, 'value="Re: s"')
+        self.assertContains(response, '>\r\n</textarea>')  # as in django\forms\widgets.py\Textarea
         self.check_status(Message.objects.get(pk=pk2), status=STATUS_ACCEPTED, is_new=False)
+
+        settings.POSTMAN_QUICKREPLY_QUOTE_BODY = True
+        self.reload_modules()
+        response = self.client.get(url)
+        self.assertContains(response, '\n\nbar wrote:\n&gt; this is my body\n</textarea>')
 
     def test_view_formatters(self):
         "Test the 'formatters' parameter."
@@ -660,7 +675,7 @@ class ViewTest(BaseTest):
         response = self.client.get(url)
         self.assertTemplateUsed(response, template)
         self.assertNotContains(response, 'value="Re_ s"')
-        self.assertContains(response, 'bar _ this is my body</textarea>')
+        self.assertContains(response, 'bar _ this is my body</textarea>')  # POSTMAN_QUICKREPLY_QUOTE_BODY setting is not involved
 
     def check_view_404(self, pk):
         self.check_404('postman_view', pk)
@@ -680,7 +695,7 @@ class ViewTest(BaseTest):
         template = "postman/view.html"
         m1 = self.c12()
         m1.read_at, m1.thread = now(), m1
-        m2 = self.c21(parent=m1, thread=m1.thread)
+        m2 = self.c21(parent=m1, thread=m1.thread, body="this is my body")
         m1.replied_at = m2.sent_at; m1.save()
         url = reverse('postman_view_conversation', args=[m1.pk])
         self.check_status(Message.objects.get(pk=m1.pk), status=STATUS_ACCEPTED, is_new=False, is_replied=True, thread=m1)
@@ -695,8 +710,15 @@ class ViewTest(BaseTest):
         self.assertEqual(response.context['reply_to_pk'], m2.pk)
         from postman.forms import QuickReplyForm
         self.assertTrue(isinstance(response.context['form'], QuickReplyForm))
+        self.assertNotContains(response, 'value="Re: s"')
+        self.assertContains(response, '>\r\n</textarea>')  # as in django\forms\widgets.py\Textarea
         self.assertEqual(len(response.context['pm_messages']), 2)
         self.check_status(Message.objects.get(pk=m2.pk), status=STATUS_ACCEPTED, is_new=False, parent=m1, thread=m1)
+
+        settings.POSTMAN_QUICKREPLY_QUOTE_BODY = True
+        self.reload_modules()
+        response = self.client.get(url)
+        self.assertContains(response, '\n\nbar wrote:\n&gt; this is my body\n</textarea>')
 
     def check_view_conversation_404(self, thread_id):
         self.check_404('postman_view_conversation', thread_id)

@@ -109,3 +109,7 @@ Examples::
             name='postman_view'),
         # ...
     )
+
+See also:
+
+* the ``POSTMAN_QUICKREPLY_QUOTE_BODY`` setting in :ref:`optional_settings`

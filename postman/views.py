@@ -306,7 +306,7 @@ class DisplayMixin(object):
     """
     http_method_names = ['get']
     form_class = QuickReplyForm
-    formatters = (format_subject, format_body)
+    formatters = (format_subject, format_body if getattr(settings, 'POSTMAN_QUICKREPLY_QUOTE_BODY', False) else None)
     template_name = 'postman/view.html'
 
     @login_required_m

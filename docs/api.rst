@@ -4,6 +4,9 @@ API
 For an easier usage of the application from other applications in the project,
 an API is provided.
 
+Note: The "sites" framework is optional but you need it if you want the ``site`` context variable
+to provide a *Site* instance (not *None*) in the notification templates.
+
 pm_broadcast()
 --------------
 Broadcast a message to multiple Users.
