@@ -36,7 +36,7 @@ Example::
 
     urlpatterns = patterns('postman.views',
         # ...
-        url(r'^write/(?:(?P<recipients>[\w.@+-:]+)/)?$',
+        url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(auto_moderators=(mod1, mod2)),
             name='postman_write'),
         url(r'^reply/(?P<message_id>[\d]+)/$',

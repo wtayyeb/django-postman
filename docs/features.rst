@@ -45,7 +45,7 @@ Example::
 
     urlpatterns = patterns('postman.views',
         # ...
-        url(r'^write/(?:(?P<recipients>[\w.@+-:]+)/)?$',
+        url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(max=3),
             name='postman_write'),
         # ...
@@ -93,7 +93,7 @@ Example::
 
     urlpatterns = patterns('postman.views',
         # ...
-        url(r'^write/(?:(?P<recipients>[\w.@+-:]+)/)?$',
+        url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(user_filter=my_user_filter),
             name='postman_write'),
         # ...
@@ -152,7 +152,7 @@ An example, with the django-relationships application::
 
     urlpatterns = patterns('postman.views',
         # ...
-        url(r'^write/(?:(?P<recipients>[\w.@+-:]+)/)?$',
+        url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(exchange_filter=my_exchange_filter),
             name='postman_write'),
         # ...
@@ -261,7 +261,7 @@ Example::
 
     urlpatterns = patterns('postman.views',
         # ...
-        url(r'^write/(?:(?P<recipients>[\w.@+-:]+)/)?$',
+        url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(autocomplete_channels=(None,'anonymous_ac')),
             name='postman_write'),
         url(r'^reply/(?P<message_id>[\d]+)/$',
@@ -274,7 +274,7 @@ Example::
 
     urlpatterns = patterns('postman.views',
         # ...
-        url(r'^write/(?:(?P<recipients>[\w.@+-:]+)/)?$',
+        url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(autocomplete_channels='write_ac'), 
             name='postman_write'),
         # ...

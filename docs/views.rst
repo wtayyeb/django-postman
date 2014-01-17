@@ -25,7 +25,7 @@ Examples::
 
     urlpatterns = patterns('postman.views',
         # ...
-        url(r'^write/(?:(?P<recipients>[\w.@+-:]+)/)?$',
+        url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(form_classes=(MyCustomWriteForm, MyCustomAnonymousWriteForm)),
             name='postman_write'),
         url(r'^reply/(?P<message_id>[\d]+)/$',
