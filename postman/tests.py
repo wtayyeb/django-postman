@@ -1,4 +1,4 @@
-"""
+﻿"""
 Test suite.
 
 - Do not put 'mailer' in INSTALLED_APPS, it disturbs the emails counting.
@@ -286,6 +286,12 @@ class ViewTest(BaseTest):
         url = reverse('postman_write', args=[':foo::intruder:bar:a-b+c@d.com:foo:'])
         response = self.client.get(url)
         self.assertContains(response, 'value="bar, foo"')
+
+        # because of Custom User Model, do allow almost any character, not only '^[\w.@+-]+$' of the legacy django.contrib.auth.User model
+        get_user_model().objects.create_user("Le Créac'h", 'foobar@domain.com', 'pass')  # even: space, accentued, qootes
+        url = reverse('postman_write', args=["Le Créac'h"])
+        response = self.client.get(url)
+        self.assertContains(response, 'value="Le Créac&#39;h"')
 
     def test_write_auto_complete(self):
         "Test the 'autocomplete_channels' parameter."
@@ -1001,7 +1007,7 @@ class MessageManagerTest(BaseTest):
               x       X---
         """
 
-        m1 = self.c12(moderation_status=STATUS_PENDING);
+        m1 = self.c12(moderation_status=STATUS_PENDING)
         m2 = self.c12(moderation_status=STATUS_REJECTED, recipient_deleted_at=now())
         m3 = self.c12()
         m3.read_at, m3.thread = now(), m3
@@ -1377,23 +1383,23 @@ class MessageTest(BaseTest):
 
     def test_notification_rejection_user(self):
         "Test notify_users() for rejection, sender is a User."
-        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender = self.user1, recipient=self.user2)
+        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender=self.user1, recipient=self.user2)
         self.check_notification(m, 1, self.user1.email, is_auto_moderated=False, notice_label='postman_rejection')
 
     def test_notification_rejection_user_auto_moderated(self):
         "Test notify_users() for rejection, sender is a User, and is alerted online."
-        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender = self.user1, recipient=self.user2)
+        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender=self.user1, recipient=self.user2)
         self.check_notification(m, 0, is_auto_moderated=True)
 
     def test_notification_rejection_user_inactive(self):
         "Test notify_users() for rejection, sender is a User, but must be active."
-        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender = self.user1, recipient=self.user2)
+        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender=self.user1, recipient=self.user2)
         self.user1.is_active = False
         self.check_notification(m, 0, is_auto_moderated=False, notice_label='postman_rejection')
 
     def test_notification_rejection_user_disable(self):
         "Test notify_users() for rejection, sender is a User, but emailing is disabled."
-        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender = self.user1, recipient=self.user2)
+        m = Message.objects.create(subject='s', moderation_status=STATUS_REJECTED, sender=self.user1, recipient=self.user2)
         settings.POSTMAN_DISABLE_USER_EMAILING = True
         settings.POSTMAN_NOTIFIER_APP = None
         self.reload_modules()
@@ -1406,18 +1412,18 @@ class MessageTest(BaseTest):
 
     def test_notification_acceptance_user(self):
         "Test notify_users() for acceptance, recipient is a User."
-        m = Message.objects.create(subject='s', moderation_status=STATUS_ACCEPTED, sender=self.user1, recipient = self.user2)
+        m = Message.objects.create(subject='s', moderation_status=STATUS_ACCEPTED, sender=self.user1, recipient=self.user2)
         self.check_notification(m, 1, self.user2.email, notice_label='postman_message')
 
     def test_notification_acceptance_user_inactive(self):
         "Test notify_users() for acceptance, recipient is a User, but must be active."
-        m = Message.objects.create(subject='s', moderation_status=STATUS_ACCEPTED, sender=self.user1, recipient = self.user2)
+        m = Message.objects.create(subject='s', moderation_status=STATUS_ACCEPTED, sender=self.user1, recipient=self.user2)
         self.user2.is_active = False
         self.check_notification(m, 0, notice_label='postman_message')
 
     def test_notification_acceptance_user_disable(self):
         "Test notify_users() for acceptance, recipient is a User, but emailing is disabled."
-        m = Message.objects.create(subject='s', moderation_status=STATUS_ACCEPTED, sender=self.user1, recipient = self.user2)
+        m = Message.objects.create(subject='s', moderation_status=STATUS_ACCEPTED, sender=self.user1, recipient=self.user2)
         settings.POSTMAN_DISABLE_USER_EMAILING = True
         settings.POSTMAN_NOTIFIER_APP = None
         self.reload_modules()

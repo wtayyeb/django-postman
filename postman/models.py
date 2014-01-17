@@ -368,7 +368,7 @@ class Message(models.Model):
 
     def clean(self):
         """Check some validity constraints."""
-        if not (self.sender_id or self.email):
+        if not (self.sender_id is not None or self.email):
             raise ValidationError(ugettext("Undefined sender."))
 
     def clean_moderation(self, initial_status, user=None):
@@ -385,11 +385,11 @@ class Message(models.Model):
 
     def clean_for_visitor(self):
         """Do some auto-read and auto-delete, because there is no one to do it (no account)."""
-        if not self.sender_id:
+        if self.sender_id is None:
             # no need to wait for a final moderation status to mark as deleted
             if not self.sender_deleted_at:
                 self.sender_deleted_at = now()
-        elif not self.recipient_id:
+        elif self.recipient_id is None:
             if self.is_accepted():
                 if not self.read_at:
                     self.read_at = now()
@@ -431,10 +431,10 @@ class Message(models.Model):
             if self.is_rejected():
                 # Bypass: for an online user, no need to notify when rejection is immediate.
                 # Only useful for a visitor as an archive copy of the message, otherwise lost.
-                if not (self.sender_id and is_auto_moderated):
-                    (notify_user if self.sender_id else email_visitor)(self, 'rejection', site)
+                if not (self.sender_id is not None and is_auto_moderated):
+                    (notify_user if self.sender_id is not None else email_visitor)(self, 'rejection', site)
             elif self.is_accepted():
-                (notify_user if self.recipient_id else email_visitor)(self, 'acceptance', site)
+                (notify_user if self.recipient_id is not None else email_visitor)(self, 'acceptance', site)
 
     def get_dates(self):
         """Get some dates to restore later."""
