@@ -2,10 +2,6 @@ from __future__ import unicode_literals
 import hashlib
 
 from django.conf import settings
-try:
-    from django.contrib.auth import get_user_model  # Django 1.5
-except ImportError:
-    from postman.future_1_5 import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -38,13 +34,27 @@ STATUS_CHOICES = (
 )
 # ordering constants
 ORDER_BY_KEY = 'o'  # as 'order'
-ORDER_BY_FIELDS = {
-    'f': 'sender__' + get_user_model().USERNAME_FIELD,     # as 'from'
-    't': 'recipient__' + get_user_model().USERNAME_FIELD,  # as 'to'
-    's': 'subject',  # as 'subject'
-    'd': 'sent_at',  # as 'date'
-}
+ORDER_BY_FIELDS = {}  # setting is deferred in setup()
 ORDER_BY_MAPPER = {'sender': 'f', 'recipient': 't', 'subject': 's', 'date': 'd'}  # for templatetags usage
+
+
+def setup():
+    """
+    Deferred actions, that can not be done at import time since Django 1.7.
+    Normally called in AppConfig.ready().
+    For backwards compatibility, also called on first need.
+
+    """
+    try:
+        from django.contrib.auth import get_user_model  # Django 1.5
+    except ImportError:
+        from postman.future_1_5 import get_user_model
+    ORDER_BY_FIELDS.update({
+        'f': 'sender__' + get_user_model().USERNAME_FIELD,     # as 'from'
+        't': 'recipient__' + get_user_model().USERNAME_FIELD,  # as 'to'
+        's': 'subject',  # as 'subject'
+        'd': 'sent_at',  # as 'date'
+    })
 
 
 def get_order_by(query_dict):
@@ -57,6 +67,8 @@ def get_order_by(query_dict):
     """
     if ORDER_BY_KEY in query_dict:
         code = query_dict[ORDER_BY_KEY]  # code may be uppercase or lowercase
+        if not ORDER_BY_FIELDS:  # backwards compatibility, before Django 1.7
+            setup()
         order_by_field = ORDER_BY_FIELDS.get(code.lower())
         if order_by_field:
             if code.isupper():
@@ -235,8 +247,8 @@ class Message(models.Model):
 
     subject = models.CharField(_("subject"), max_length=SUBJECT_MAX_LENGTH)
     body = models.TextField(_("body"), blank=True)
-    sender = models.ForeignKey(get_user_model(), related_name='sent_messages', null=True, blank=True, verbose_name=_("sender"))
-    recipient = models.ForeignKey(get_user_model(), related_name='received_messages', null=True, blank=True, verbose_name=_("recipient"))
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_messages', null=True, blank=True, verbose_name=_("sender"))
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_messages', null=True, blank=True, verbose_name=_("recipient"))
     email = models.EmailField(_("visitor"), blank=True)  # instead of either sender or recipient, for an AnonymousUser
     parent = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("parent message"))
     thread = models.ForeignKey('self', related_name='child_messages', null=True, blank=True, verbose_name=_("root message"))
@@ -249,7 +261,7 @@ class Message(models.Model):
     recipient_deleted_at = models.DateTimeField(_("deleted by recipient at"), null=True, blank=True)
     # moderation fields
     moderation_status = models.CharField(_("status"), max_length=1, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    moderation_by = models.ForeignKey(get_user_model(), related_name='moderated_messages',
+    moderation_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='moderated_messages',
         null=True, blank=True, verbose_name=_("moderator"))
     moderation_date = models.DateTimeField(_("moderated at"), null=True, blank=True)
     moderation_reason = models.CharField(_("rejection reason"), max_length=120, blank=True)

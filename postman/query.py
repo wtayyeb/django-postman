@@ -30,6 +30,11 @@ class Proxy(object):
         else:
             object.__setattr__(self, name, value)
 
+    # added for Django 1.7, object has to be callable
+    # see db/models/sql/compiler.py/quote_name_unless_alias()
+    def __call__(self, name):
+        return self._target(name)
+
 
 class CompilerProxy(Proxy):
     """

@@ -1708,11 +1708,13 @@ class UtilsTest(BaseTest):
             settings.POSTMAN_SHOW_USER_AS = b'email'  # usage on PY3 is nonsense
             self.assertEqual(get_user_representation(self.user1), "foo@domain.com")
         # a method name
-        settings.POSTMAN_SHOW_USER_AS = 'get_absolute_url'  # can't use get_full_name(), an empty string in our case
-        self.assertEqual(get_user_representation(self.user1), "/users/foo/")
+        # can't use get_full_name(), an empty string in our case
+        # get_absolute_url() doesn't exist anymore since Django 1.7
+        settings.POSTMAN_SHOW_USER_AS = 'natural_key'  # avoid get_username(), already used for the default representation
+        self.assertEqual(get_user_representation(self.user1), "(u'foo',)")
         # a function
-        settings.POSTMAN_SHOW_USER_AS = lambda u: u.get_absolute_url()
-        self.assertEqual(get_user_representation(self.user1), "/users/foo/")
+        settings.POSTMAN_SHOW_USER_AS = lambda u: u.natural_key()
+        self.assertEqual(get_user_representation(self.user1), "(u'foo',)")
 
 
 class ApiTest(BaseTest):
