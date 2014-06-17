@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
 from django.contrib.sites.models import get_current_site
-from django.db import transaction
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 from postman.models import Message, PendingMessage
@@ -122,7 +121,7 @@ class MessageAdmin(admin.ModelAdmin):
         """
         return super(MessageAdmin, self).queryset(request).select_related('sender', 'recipient')
 
-    @transaction.commit_on_success
+    # no need for transaction decorator, it's already managed by the Admin
     def save_model(self, request, obj, form, change):
         """
         Add some actions around the save.
