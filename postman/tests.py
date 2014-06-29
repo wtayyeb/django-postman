@@ -51,7 +51,7 @@ from django.core.urlresolvers import reverse, clear_url_caches, get_resolver, ge
 from django.db.models import Q
 from django.http import QueryDict
 from django.template import Template, Context, TemplateSyntaxError, TemplateDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.utils.encoding import force_text
 from django.utils.formats import localize
 from django.utils import six
@@ -80,6 +80,24 @@ class GenericTest(TestCase):
     """
     def test_version(self):
         self.assertEqual(sys.modules['postman'].__version__, "3.2.0a1")
+
+
+class TransactionViewTest(TransactionTestCase):
+    """
+    Test some transactional behavior.
+    Can't use Django TestCase class, because it has a special treament for commit/rollback to speed up the database resetting.
+    """
+    def setUp(self):
+        self.user1 = get_user_model().objects.create_user('foo', 'foo@domain.com', 'pass')
+        self.user2 = get_user_model().objects.create_user('bar', 'bar@domain.com', 'pass')
+
+    def test(self):
+        "Test possible clash between transaction.commit_on_success and transaction.atomic (Django 1.6)."
+        url = reverse('postman_write')
+        data = {'recipients': self.user2.get_username(), 'subject': 's'}
+        self.assertTrue(self.client.login(username='foo', password='pass'))
+        response = self.client.post(url, data)
+        self.assertTrue(Message.objects.get())
 
 
 class BaseTest(TestCase):

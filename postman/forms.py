@@ -99,7 +99,6 @@ class BaseWriteForm(forms.ModelForm):
                 raise forms.ValidationError(errors)
         return recipients
 
-    @transaction.commit_on_success
     def save(self, recipient=None, parent=None, auto_moderators=[]):
         """
         Save as many messages as there are recipients.
@@ -149,6 +148,8 @@ class BaseWriteForm(forms.ModelForm):
             self.instance.set_moderation(*initial_moderation)
             self.instance.set_dates(*initial_dates)
         return is_successful
+    # commit_on_success() is deprecated in Django 1.6 and will be removed in Django 1.8
+    save = transaction.atomic(save) if hasattr(transaction, 'atomic') else transaction.commit_on_success(save)
 
 
 class WriteForm(BaseWriteForm):
