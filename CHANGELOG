@@ -2,6 +2,15 @@
 Django Postman changelog
 ========================
 
+Version 3.2.0, November 2014
+----------------------------
+* Fixed issue #50, TransactionManagementError with ATOMIC_REQUESTS of Django 1.6.
+* Fixed issue #46, TransactionManagementError with the Admin of Django 1.6.
+* Made adjustments for accordance with Django 1.7b4.
+* Added a setting: POSTMAN_QUICKREPLY_QUOTE_BODY.
+* Allowed 0 as a valid value for the key to a [Custom] User Model.
+* Relaxed the allowed character set for naming the recipients, to accommodate a possible Custom User Model.
+
 Version 3.1.0, January 2014
 ---------------------------
 * Used the 'Python 2/3 Compatible Source' strategy for a codebase compatible with Python 2 & 3 (version 3.3).
