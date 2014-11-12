@@ -513,9 +513,12 @@ class Message(models.Model):
 class PendingMessageManager(models.Manager):
     """The manager for PendingMessage."""
 
-    def get_query_set(self):
-        """Filter to get only pending objects."""
+    def get_query_set(self):  # for Django <= 1.5
         return super(PendingMessageManager, self).get_query_set().filter(moderation_status=STATUS_PENDING)
+
+    def get_queryset(self):  # changed in Django 1.6: "The get_queryset method was previously named get_query_set."
+        """Filter to get only pending objects."""
+        return super(PendingMessageManager, self).get_queryset().filter(moderation_status=STATUS_PENDING)
 
 
 class PendingMessage(Message):

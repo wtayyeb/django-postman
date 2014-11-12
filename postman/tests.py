@@ -79,7 +79,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.2.0")
+        self.assertEqual(sys.modules['postman'].__version__, "3.3.0a1")
 
 
 class TransactionViewTest(TransactionTestCase):
@@ -87,6 +87,8 @@ class TransactionViewTest(TransactionTestCase):
     Test some transactional behavior.
     Can't use Django TestCase class, because it has a special treament for commit/rollback to speed up the database resetting.
     """
+    urls = 'postman.urls_for_tests'
+
     def setUp(self):
         self.user1 = get_user_model().objects.create_user('foo', 'foo@domain.com', 'pass')
         self.user2 = get_user_model().objects.create_user('bar', 'bar@domain.com', 'pass')
@@ -1729,10 +1731,10 @@ class UtilsTest(BaseTest):
         # can't use get_full_name(), an empty string in our case
         # get_absolute_url() doesn't exist anymore since Django 1.7
         settings.POSTMAN_SHOW_USER_AS = 'natural_key'  # avoid get_username(), already used for the default representation
-        self.assertEqual(get_user_representation(self.user1), "(u'foo',)")
+        self.assertEqual(get_user_representation(self.user1), "(u'foo',)" if not six.PY3 else "('foo',)")
         # a function
         settings.POSTMAN_SHOW_USER_AS = lambda u: u.natural_key()
-        self.assertEqual(get_user_representation(self.user1), "(u'foo',)")
+        self.assertEqual(get_user_representation(self.user1), "(u'foo',)" if not six.PY3 else "('foo',)")
 
 
 class ApiTest(BaseTest):
