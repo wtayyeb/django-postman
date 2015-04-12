@@ -12,13 +12,13 @@ Some reasons:
 
 * (2.6) use of ``str.format()``
 
-Django version >= 1.4.2 on py2, >= 1.5.5 on py3
+Django version >= 1.5 on py2, >= 1.5.5 on py3
 
 Some reasons:
 
+* (1.5/py2) ``url`` template tag syntax
 * (1.5.5/py3) Six version >= 1.4.0
 * (1.4.2) use of the Six library for supporting Python 2 and 3 in a single codebase
-* (1.3) use of class-based views
 
 Installation
 ------------
