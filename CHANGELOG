@@ -2,9 +2,13 @@
 Django Postman changelog
 ========================
 
+Version 3.2.2, April 2015
+-------------------------
+* Made the app working with Django 1.8.
+
 Version 3.2.1, April 2015
 -------------------------
-* Made adjustments for accordance with Django 1.8 and 1.9. WARNING: not yet working on 1.8
+* Made adjustments for accordance with Django 1.8 and 1.9. WARNING: not yet working on 1.8.
 
 Version 3.2.0, November 2014
 ----------------------------

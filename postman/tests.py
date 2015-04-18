@@ -59,9 +59,8 @@ from django.utils.six.moves import reload_module
 try:
     from django.utils.timezone import now  # Django 1.4 aware datetimes
 except ImportError:
-    from datetime import datetime
     now = datetime.now
-from django.utils.translation import deactivate
+from django.utils.translation import activate, deactivate
 
 from . import OPTION_MESSAGES
 from .api import pm_broadcast, pm_write
@@ -79,7 +78,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.2.1")
+        self.assertEqual(sys.modules['postman'].__version__, "3.2.2")
 
 
 class TransactionViewTest(TransactionTestCase):
@@ -110,7 +109,10 @@ class BaseTest(TestCase):
 
     def setUp(self):
         deactivate()  # necessary for 1.4 to consider a new settings.LANGUAGE_CODE; 1.3 is fine with or without
-        settings.LANGUAGE_CODE = 'en'  # do not bother about translation
+        settings.LANGUAGE_CODE = 'en'  # do not bother about translation ; needed for the server side
+        # added for 1.8, for the client side, to supersede the default language set as soon as the creation of auth's permissions,
+        # initiated via a post_migrate signal.
+        activate('en')
         for a in (
             'POSTMAN_DISALLOW_ANONYMOUS',
             'POSTMAN_DISALLOW_MULTIRECIPIENTS',
@@ -180,27 +182,32 @@ class BaseTest(TestCase):
         self.assertEqual(m.moderation_by, moderation_by)
         self.assertEqual(m.moderation_reason, moderation_reason)
 
-    def create(self, moderation_status=None, *args, **kwargs):
+    def create(self, *args, **kwargs):
         "Create a message."
-        if moderation_status:
-            kwargs.update(moderation_status=moderation_status)
-        return Message.objects.create(subject='s', *args, **kwargs)
+        kwargs.update(subject='s')
+        return Message.objects.create(*args, **kwargs)
 
-    def create_accepted(self, moderation_status=STATUS_ACCEPTED, *args, **kwargs):
-        "Create a message as 'accepted'."
-        return self.create(moderation_status=moderation_status, *args, **kwargs)
+    def create_accepted(self, *args, **kwargs):
+        "Create a message with a default status as 'accepted'."
+        kwargs.setdefault('moderation_status', STATUS_ACCEPTED)
+        return self.create(*args, **kwargs)
 
     # set of message creations
     def c12(self, *args, **kwargs):
-        return self.create_accepted(sender=self.user1, recipient=self.user2, *args, **kwargs)
+        kwargs.update(sender=self.user1, recipient=self.user2)
+        return self.create_accepted(*args, **kwargs)
     def c13(self, *args, **kwargs):
-        return self.create_accepted(sender=self.user1, recipient=self.user3, *args, **kwargs)
+        kwargs.update(sender=self.user1, recipient=self.user3)
+        return self.create_accepted(*args, **kwargs)
     def c21(self, *args, **kwargs):
-        return self.create_accepted(sender=self.user2, recipient=self.user1, *args, **kwargs)
+        kwargs.update(sender=self.user2, recipient=self.user1)
+        return self.create_accepted(*args, **kwargs)
     def c23(self, *args, **kwargs):
-        return self.create_accepted(sender=self.user2, recipient=self.user3, *args, **kwargs)
+        kwargs.update(sender=self.user2, recipient=self.user3)
+        return self.create_accepted(*args, **kwargs)
     def c32(self, *args, **kwargs):
-        return self.create_accepted(sender=self.user3, recipient=self.user2, *args, **kwargs)
+        kwargs.update(sender=self.user3, recipient=self.user2)
+        return self.create_accepted(*args, **kwargs)
 
     def reload_modules(self):
         "Reload some modules after a change in settings."
