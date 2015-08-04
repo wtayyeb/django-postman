@@ -1,5 +1,9 @@
 from __future__ import unicode_literals
 import hashlib
+try:
+    from importlib import import_module
+except ImportError:
+    from django.utils.importlib import import_module  # Django 1.6 / py2.6
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -49,9 +53,10 @@ def setup():
         from django.contrib.auth import get_user_model  # Django 1.5
     except ImportError:
         from postman.future_1_5 import get_user_model
+    name_user_as = getattr(settings, 'POSTMAN_NAME_USER_AS', get_user_model().USERNAME_FIELD)
     ORDER_BY_FIELDS.update({
-        'f': 'sender__' + get_user_model().USERNAME_FIELD,     # as 'from'
-        't': 'recipient__' + get_user_model().USERNAME_FIELD,  # as 'to'
+        'f': 'sender__' + name_user_as,     # as 'from'
+        't': 'recipient__' + name_user_as,  # as 'to'
         's': 'subject',  # as 'subject'
         'd': 'sent_at',  # as 'date'
     })
@@ -82,17 +87,34 @@ def get_user_representation(user):
     """
     show_user_as = getattr(settings, 'POSTMAN_SHOW_USER_AS', None)
     if isinstance(show_user_as, six.string_types):
-        attr = getattr(user, show_user_as, None)
-        if callable(attr):
-            attr = attr()
-        if attr:
-            return force_text(attr)
+        if '.' in show_user_as:
+            mod_path, _, attr_name = show_user_as.rpartition('.')
+            try:
+                return force_text(getattr(import_module(mod_path), attr_name)(user))
+            except:  # ImportError, AttributeError, TypeError (not callable)
+                pass
+        else:
+            attr = getattr(user, show_user_as, None)
+            if callable(attr):
+                attr = attr()
+            if attr:
+                return force_text(attr)
     elif callable(show_user_as):
         try:
             return force_text(show_user_as(user))
         except:
             pass
     return force_text(user)  # default value, or in case of empty attribute or exception
+
+
+def get_user_name(user):
+    """
+    Return the identifying name for a User.
+    """
+    name_user_as = getattr(settings, 'POSTMAN_NAME_USER_AS', None)
+    if name_user_as:
+        return getattr(user, name_user_as)
+    return user.get_username()  # default
 
 
 class MessageManager(models.Manager):
@@ -120,6 +142,7 @@ class MessageManager(models.Manager):
             qs = qs.extra(select={'count': '{0}.count'.format(qs.query.pm_alias_prefix)})
             qs.query.pm_set_extra(table=(
                 # extra columns are always first in the SELECT query
+                # for tests with the version 2.4.1 of sqlite3 in py26, add to the select: , 'id': 'postman_message.id'
                 self.filter(lookups, thread_id__isnull=True).extra(select={'count': 0})\
                     .values_list('id', 'count').order_by(),
                 # use separate annotate() to keep control of the necessary order

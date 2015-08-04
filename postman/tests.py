@@ -68,7 +68,7 @@ from .api import pm_broadcast, pm_write
 # because of reload()'s, do "from postman.forms import xxForm" just before needs
 from .models import ORDER_BY_KEY, ORDER_BY_MAPPER, Message, PendingMessage,\
         STATUS_PENDING, STATUS_ACCEPTED, STATUS_REJECTED,\
-        get_order_by, get_user_representation
+        get_order_by, get_user_representation, get_user_name
 # because of reload()'s, do "from postman.utils import notification" just before needs
 from .utils import format_body, format_subject
 
@@ -78,7 +78,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.2.2")
+        self.assertEqual(sys.modules['postman'].__version__, "3.3.0a1")
 
 
 class TransactionViewTest(TransactionTestCase):
@@ -121,6 +121,7 @@ class BaseTest(TestCase):
             'POSTMAN_AUTO_MODERATE_AS',
             'POSTMAN_NOTIFIER_APP',
             'POSTMAN_SHOW_USER_AS',
+            'POSTMAN_NAME_USER_AS',
             'POSTMAN_QUICKREPLY_QUOTE_BODY',
         ):
             if hasattr(settings, a):
@@ -1742,6 +1743,22 @@ class UtilsTest(BaseTest):
         # a function
         settings.POSTMAN_SHOW_USER_AS = lambda u: u.natural_key()
         self.assertEqual(get_user_representation(self.user1), "(u'foo',)" if not six.PY3 else "('foo',)")
+        # a path to a function or a class
+        settings.POSTMAN_SHOW_USER_AS = 'postman.module_for_tests.user_representation'
+        self.assertEqual(get_user_representation(self.user1), "nick_foo")
+        settings.POSTMAN_SHOW_USER_AS = 'postman.module_for_tests.UserRepresentation'
+        self.assertEqual(get_user_representation(self.user1), "nick_foo")
+
+    def test_get_user_name(self):
+        "Test get_user_name()."
+        # no setting
+        self.assertEqual(get_user_name(self.user1), "foo")
+        # a wrong setting
+        settings.POSTMAN_NAME_USER_AS = 'unknown_attribute'
+        self.assertRaises(AttributeError, get_user_name, self.user1)
+        # a property name
+        settings.POSTMAN_NAME_USER_AS = 'email'
+        self.assertEqual(get_user_name(self.user1), "foo@domain.com")
 
 
 class ApiTest(BaseTest):
