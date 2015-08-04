@@ -23,9 +23,9 @@ except ImportError:
 from django.db import transaction
 from django.utils.translation import ugettext, ugettext_lazy as _
 
-from postman.fields import CommaSeparatedUserField
-from postman.models import Message
-from postman.utils import WRAP_WIDTH
+from .fields import CommaSeparatedUserField
+from .models import Message, get_user_name
+from .utils import WRAP_WIDTH
 
 
 class BaseWriteForm(forms.ModelForm):
@@ -88,7 +88,7 @@ class BaseWriteForm(forms.ModelForm):
                         filtered_names.append(
                             self.error_messages[
                                 'filtered_user_with_reason' if reason else 'filtered_user'
-                            ].format(username=u.get_username(), reason=reason)
+                            ].format(username=get_user_name(u), reason=reason)
                         )
                 except forms.ValidationError as e:
                     recipients.remove(u)

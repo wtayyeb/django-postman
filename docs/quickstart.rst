@@ -43,7 +43,7 @@ Required settings
 
 Add ``postman`` to the ``INSTALLED_APPS`` setting of your project.
 
-Run a :command:`manage.py syncdb`
+Run a :command:`manage.py migrate` (or for Django <= 1.6 :command:`manage.py syncdb`)
 
 Include the URLconf ``postman.urls`` in your project's root URL configuration.
 
@@ -99,16 +99,31 @@ You may specify some additional configuration options in your :file:`settings.py
     How to represent a User for display, in message properties: ``obfuscated_recipient`` and ``obfuscated_sender``,
     and in the ``or_me`` filter. The value can be specified as:
 
-    * The name of a property of User. For example: 'last_name'
-    * The name of a method of User. For example: 'get_full_name'
-    * A function, receiving the User instance as the only parameter. For example: ``lambda u: u.get_profile().nickname``
+    * The name of a property of User. For example: 'last_name'.
+    * The name of a method of User. For example: 'get_full_name'.
+    * A function, receiving the User instance as the only parameter. For example: ``lambda u: u.get_profile().nickname``.
+    * *New in version 3.3.0.* The full path to a function, as a string, whose import will be deferred. For example: 'myapp.mymodule.myfunc'.
+      The function is given the User object as the only parameter. This sort of reference can be useful when resolving
+      circular import dependencies between applications or modules. Another approach, not promoted but compatible, is
+      to specify a class instead of a function, like 'myapp.mymodule.MyClass'. In that case, an instance of the class
+      is initialized with the User object and its representation is the final result.
     * ``None`` : the default text representation of the User (username) is used.
 
     *Defaults to*: None.
 
-    The default behaviour is used as a fallback when: the value is a string and the result is false
-    (misspelled attribute name, empty result, ...), or the value is a function and an exception is raised
+    The default behaviour is used as a fallback when: the value names an attribute and the result is false
+    (misspelled attribute name, empty result, ...), or the value names a function and an exception is raised
     (but any result, even empty, is valid).
+
+``POSTMAN_NAME_USER_AS``
+    *New in version 3.3.0.*
+
+    How to name a User as a recipient. The value can be specified as:
+
+    * The name of a property of User. For example: 'last_name' (in auth.User)  or 'nick_name' (in a Custom User Model).
+    * ``None`` : the default User model attributes are used: USERNAME_FIELD and get_username().
+
+    *Defaults to*: None.
 
 ``POSTMAN_QUICKREPLY_QUOTE_BODY``
     *New in version 3.2.0.*

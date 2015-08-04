@@ -1,4 +1,8 @@
 from __future__ import unicode_literals
+try:
+    from importlib import import_module
+except ImportError:
+    from django.utils.importlib import import_module  # Django 1.6 / py2.6
 import sys
 
 from django.conf import settings
@@ -8,8 +12,7 @@ from django.utils.translation import ugettext_noop as _
 name = getattr(settings, 'POSTMAN_NOTIFIER_APP', 'notification')
 if name and name in settings.INSTALLED_APPS:
     name = name + '.models'
-    __import__(name)
-    notification = sys.modules[name]
+    notification = import_module(name)
     try:
         create = notification.NoticeType.create  # django-notification 1.0
     except AttributeError:

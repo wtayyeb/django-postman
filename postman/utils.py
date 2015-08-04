@@ -1,4 +1,8 @@
 from __future__ import unicode_literals
+try:
+    from importlib import import_module
+except ImportError:
+    from django.utils.importlib import import_module  # Django 1.6 / py2.6
 import re
 import sys
 from textwrap import TextWrapper
@@ -13,8 +17,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 name = getattr(settings, 'POSTMAN_NOTIFIER_APP', 'notification')
 if name and name in settings.INSTALLED_APPS:
     name = name + '.models'
-    __import__(name)
-    notification = sys.modules[name]
+    notification = import_module(name)
 else:
     notification = None
 
@@ -22,7 +25,7 @@ else:
 # but if not installed or not desired, fallback to django.core.mail
 name = getattr(settings, 'POSTMAN_MAILER_APP', 'mailer')
 if name and name in settings.INSTALLED_APPS:
-    send_mail = __import__(name, globals(), locals(), [str('send_mail')]).send_mail
+    send_mail = import_module(name).send_mail
 else:
     from django.core.mail import send_mail
 

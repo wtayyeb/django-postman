@@ -232,10 +232,11 @@ class WriteView(ComposeMixin, FormView):
                 # order_by() is not mandatory, but: a) it doesn't hurt; b) it eases the test suite
                 # and anyway the original ordering cannot be respected.
                 user_model = get_user_model()
-                usernames = list(user_model.objects.values_list(user_model.USERNAME_FIELD, flat=True).filter(
+                name_user_as = getattr(settings, 'POSTMAN_NAME_USER_AS', user_model.USERNAME_FIELD)
+                usernames = list(user_model.objects.values_list(name_user_as, flat=True).filter(
                     is_active=True,
-                    **{'{0}__in'.format(user_model.USERNAME_FIELD): [r.strip() for r in recipients.split(':') if r and not r.isspace()]}
-                ).order_by(user_model.USERNAME_FIELD))
+                    **{'{0}__in'.format(name_user_as): [r.strip() for r in recipients.split(':') if r and not r.isspace()]}
+                ).order_by(name_user_as))
                 if usernames:
                     initial['recipients'] = ', '.join(usernames)
         return initial

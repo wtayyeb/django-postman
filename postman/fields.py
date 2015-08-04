@@ -2,6 +2,10 @@
 Custom fields.
 """
 from __future__ import unicode_literals
+try:
+    from importlib import import_module
+except ImportError:
+    from django.utils.importlib import import_module  # Django 1.6 / py2.6
 
 from django.conf import settings
 try:
@@ -12,6 +16,8 @@ from django.core.exceptions import ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
+
+from .models import get_user_name
 
 
 class BasicCommaSeparatedUserField(CharField):
@@ -71,8 +77,9 @@ class BasicCommaSeparatedUserField(CharField):
         if not names:
             return []
         user_model = get_user_model()
-        users = list(user_model.objects.filter(is_active=True, **{'{0}__in'.format(user_model.USERNAME_FIELD): names}))
-        unknown_names = set(names) ^ set([u.get_username() for u in users])
+        name_user_as = getattr(settings, 'POSTMAN_NAME_USER_AS', user_model.USERNAME_FIELD)
+        users = list(user_model.objects.filter(is_active=True, **{'{0}__in'.format(name_user_as): names}))
+        unknown_names = set(names) ^ set([get_user_name(u) for u in users])
         errors = []
         if unknown_names:
             errors.append(self.error_messages['unknown'].format(users=', '.join(unknown_names)))
@@ -86,7 +93,7 @@ class BasicCommaSeparatedUserField(CharField):
                         filtered_names.append(
                             self.error_messages[
                                 'filtered_user_with_reason' if reason else 'filtered_user'
-                            ].format(username=u.get_username(), reason=reason)
+                            ].format(username=get_user_name(u), reason=reason)
                         )
                 except ValidationError as e:
                     users.remove(u)
@@ -107,9 +114,9 @@ autocompleter_app = {}
 if app_name in settings.INSTALLED_APPS and arg_default:
     autocompleter_app['is_active'] = True
     autocompleter_app['name'] = app_name
-    autocompleter_app['version'] = getattr(__import__(app_name, globals(), locals(), [str('__version__')]), '__version__', None)
+    autocompleter_app['version'] = getattr(import_module(app_name), '__version__', None)
     # does something like "from ajax_select.fields import AutoCompleteField"
-    auto_complete_field = getattr(__import__(app_name + '.fields', globals(), locals(), [str(field_name)]), field_name)
+    auto_complete_field = getattr(import_module(app_name + '.fields'), field_name)
 
     class CommaSeparatedUserField(BasicCommaSeparatedUserField, auto_complete_field):
         def __init__(self, *args, **kwargs):
