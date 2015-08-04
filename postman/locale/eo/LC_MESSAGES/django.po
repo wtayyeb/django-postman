@@ -32,19 +32,19 @@ msgid "Visitor's email is missing."
 msgstr "La retadreso de la vizitanto mankas."
 
 #: .\admin.py:43
-msgid "Reading date must be later to sending date."
+msgid "Reading date must be later than sending date."
 msgstr "La dato de la legado devas esti post la dato de la sendado."
 
 #: .\admin.py:48
-msgid "Deletion date by sender must be later to sending date."
+msgid "Deletion date by sender must be later than sending date."
 msgstr "La dato de la forviŝado de la sendanto devas esti post la dato de la sendado."
 
 #: .\admin.py:53
-msgid "Deletion date by recipient must be later to sending date."
+msgid "Deletion date by recipient must be later than sending date."
 msgstr "La dato de la forviŝado de la ricevanto devas esti post la dato de la sendado."
 
 #: .\admin.py:61
-msgid "Response date must be later to sending date."
+msgid "Response date must be later than sending date."
 msgstr "La dato de la respondo devas esti post la dato de la sendado."
 
 #: .\admin.py:63
@@ -52,7 +52,7 @@ msgid "The message cannot be replied without having been read."
 msgstr "Por povi respondi la mesaĝon unue vi devas legi ĝin."
 
 #: .\admin.py:65
-msgid "Response date must be later to reading date."
+msgid "Response date must be later than reading date."
 msgstr "La dato de la respondo devas esti post la dato de la legado."
 
 #: .\admin.py:67
@@ -76,7 +76,7 @@ msgid "Moderation"
 msgstr "Moderaĵo"
 
 #: .\fields.py:27
-msgid "Some usernames are unknown or no more active: {users}."
+msgid "Some usernames are unknown or no longer active: {users}."
 msgstr "Kelkaj uzantnomoj estas nekonataj aŭ ne plu aktivaj: {users}."
 
 #: .\fields.py:28

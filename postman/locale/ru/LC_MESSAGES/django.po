@@ -3,8 +3,8 @@
 # This file is distributed under the same license as the django-postman package.
 # 
 # Translators:
-# Patrick Samson <maxcom@laposte.net>, 2011.
-# Vasiliy  <vasiliy.korchagin@gmail.com>, 2011, 2012.
+# Patrick Samson <maxcom@laposte.net>, 2011
+# Vasiliy  <vasiliy.korchagin@gmail.com>, 2011, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
@@ -32,19 +32,19 @@ msgid "Visitor's email is missing."
 msgstr "Нет адреса электронной почты посетителя."
 
 #: .\admin.py:43
-msgid "Reading date must be later to sending date."
+msgid "Reading date must be later than sending date."
 msgstr "Дата прочтения должна быть позже даты посылки."
 
 #: .\admin.py:48
-msgid "Deletion date by sender must be later to sending date."
+msgid "Deletion date by sender must be later than sending date."
 msgstr "Дата удаления отправителем должна быть позже даты отправления."
 
 #: .\admin.py:53
-msgid "Deletion date by recipient must be later to sending date."
+msgid "Deletion date by recipient must be later than sending date."
 msgstr "Дата удаления получателем должна быть позже даты отправления."
 
 #: .\admin.py:61
-msgid "Response date must be later to sending date."
+msgid "Response date must be later than sending date."
 msgstr "Дата ответа должна быть позже даты отправления."
 
 #: .\admin.py:63
@@ -52,7 +52,7 @@ msgid "The message cannot be replied without having been read."
 msgstr "Нельзя ответить на сообщение, не прочитав его."
 
 #: .\admin.py:65
-msgid "Response date must be later to reading date."
+msgid "Response date must be later than reading date."
 msgstr "Дата ответа должна быть позже даты прочтения."
 
 #: .\admin.py:67
@@ -76,7 +76,7 @@ msgid "Moderation"
 msgstr "Модерация"
 
 #: .\fields.py:27
-msgid "Some usernames are unknown or no more active: {users}."
+msgid "Some usernames are unknown or no longer active: {users}."
 msgstr "Некоторые пользователи неизвестны или больше не активны: {users}."
 
 #: .\fields.py:28

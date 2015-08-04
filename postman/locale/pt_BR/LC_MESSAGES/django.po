@@ -32,19 +32,19 @@ msgid "Visitor's email is missing."
 msgstr "E-mail do visitante está faltando."
 
 #: .\admin.py:43
-msgid "Reading date must be later to sending date."
+msgid "Reading date must be later than sending date."
 msgstr "Data de leitura deve ser posterior à data de envio."
 
 #: .\admin.py:48
-msgid "Deletion date by sender must be later to sending date."
+msgid "Deletion date by sender must be later than sending date."
 msgstr "Data de exclusão por remetente deve ser posterior à data de envio."
 
 #: .\admin.py:53
-msgid "Deletion date by recipient must be later to sending date."
+msgid "Deletion date by recipient must be later than sending date."
 msgstr "Data de exclusão pelo destinatário deve ser posterior à data de envio."
 
 #: .\admin.py:61
-msgid "Response date must be later to sending date."
+msgid "Response date must be later than sending date."
 msgstr "Data de resposta deve ser posterior à data de envio."
 
 #: .\admin.py:63
@@ -52,7 +52,7 @@ msgid "The message cannot be replied without having been read."
 msgstr "A mensagem não pode ser respondida sem ter sido lida."
 
 #: .\admin.py:65
-msgid "Response date must be later to reading date."
+msgid "Response date must be later than reading date."
 msgstr "Data de resposta deve ser posterior à data de leitura."
 
 #: .\admin.py:67
@@ -76,7 +76,7 @@ msgid "Moderation"
 msgstr "Moderaração"
 
 #: .\fields.py:27
-msgid "Some usernames are unknown or no more active: {users}."
+msgid "Some usernames are unknown or no longer active: {users}."
 msgstr "Alguns nomes são desconhecidos ou não estão mais ativos: {users}."
 
 #: .\fields.py:28

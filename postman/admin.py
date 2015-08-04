@@ -45,17 +45,17 @@ class MessageAdminForm(forms.ModelForm):
         sent_at = cleaned_data.get('sent_at')
         read_at = cleaned_data.get('read_at')
         if read_at and read_at < sent_at:
-            errors.append(ugettext("Reading date must be later to sending date."))
+            errors.append(ugettext("Reading date must be later than sending date."))
             if 'read_at' in cleaned_data:
                 del cleaned_data['read_at']
         sender_deleted_at = cleaned_data.get('sender_deleted_at')
         if sender_deleted_at and sender_deleted_at < sent_at:
-            errors.append(ugettext("Deletion date by sender must be later to sending date."))
+            errors.append(ugettext("Deletion date by sender must be later than sending date."))
             if 'sender_deleted_at' in cleaned_data:
                 del cleaned_data['sender_deleted_at']
         recipient_deleted_at = cleaned_data.get('recipient_deleted_at')
         if recipient_deleted_at and recipient_deleted_at < sent_at:
-            errors.append(ugettext("Deletion date by recipient must be later to sending date."))
+            errors.append(ugettext("Deletion date by recipient must be later than sending date."))
             if 'recipient_deleted_at' in cleaned_data:
                 del cleaned_data['recipient_deleted_at']
         replied_at = cleaned_data.get('replied_at')
@@ -63,11 +63,11 @@ class MessageAdminForm(forms.ModelForm):
         if replied_at:
             len_begin = len(errors)
             if replied_at < sent_at:
-                errors.append(ugettext("Response date must be later to sending date."))
+                errors.append(ugettext("Response date must be later than sending date."))
             if not read_at:
                 errors.append(ugettext("The message cannot be replied without having been read."))
             elif replied_at < read_at:
-                errors.append(ugettext("Response date must be later to reading date."))
+                errors.append(ugettext("Response date must be later than reading date."))
             if not obj.get_replies_count():
                 errors.append(ugettext("Response date cannot be set without at least one reply."))
             if not obj.thread_id:

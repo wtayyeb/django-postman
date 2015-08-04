@@ -34,19 +34,19 @@ msgid "Visitor's email is missing."
 msgstr "Alıcının eposta adresi belirtilmemiş."
 
 #: .\admin.py:43
-msgid "Reading date must be later to sending date."
+msgid "Reading date must be later than sending date."
 msgstr "Okuma tarihi gönderme tarihinden daha sonra olmalı."
 
 #: .\admin.py:48
-msgid "Deletion date by sender must be later to sending date."
+msgid "Deletion date by sender must be later than sending date."
 msgstr "Gönderenin silme tarihi, gönderme tarihinden daha sonra olmalı."
 
 #: .\admin.py:53
-msgid "Deletion date by recipient must be later to sending date."
+msgid "Deletion date by recipient must be later than sending date."
 msgstr "Alıcının silme tarihi, gönderme tarihinden daha sonra olmalı."
 
 #: .\admin.py:61
-msgid "Response date must be later to sending date."
+msgid "Response date must be later than sending date."
 msgstr "Cevap tarihi, gönderme tarihinden daha sonra olmalı."
 
 #: .\admin.py:63
@@ -54,7 +54,7 @@ msgid "The message cannot be replied without having been read."
 msgstr "Mesaj okunmuş olmadan cevaplanamaz."
 
 #: .\admin.py:65
-msgid "Response date must be later to reading date."
+msgid "Response date must be later than reading date."
 msgstr "Cevap tarihi, okuma tarihinden daha sonra olmalı."
 
 #: .\admin.py:67
@@ -78,7 +78,7 @@ msgid "Moderation"
 msgstr "Yönetim"
 
 #: .\fields.py:27
-msgid "Some usernames are unknown or no more active: {users}."
+msgid "Some usernames are unknown or no longer active: {users}."
 msgstr "Bazı kullanıcı isimleri bilinmiyor veya artık aktif değiller: {users}."
 
 #: .\fields.py:28
