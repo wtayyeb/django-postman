@@ -3,9 +3,9 @@
 # This file is distributed under the same license as the django-postman package.
 # 
 # Translators:
-# Patrick Samson <maxcom@laposte.net>, 2011.
-# Erik Rivera <erik.river@gmail.com>, 2011.
-# <matiasherranz@gmail.com>, 2012.
+# Patrick Samson <maxcom@laposte.net>, 2011
+# Erik Rivera <erik.river@gmail.com>, 2011
+# <matiasherranz@gmail.com>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
@@ -33,22 +33,22 @@ msgid "Visitor's email is missing."
 msgstr "Correo del visitante no se encuentra."
 
 #: .\admin.py:43
-msgid "Reading date must be later to sending date."
+msgid "Reading date must be later than sending date."
 msgstr "Fecha de lectura debe ser posterior a la fecha de envío."
 
 #: .\admin.py:48
-msgid "Deletion date by sender must be later to sending date."
+msgid "Deletion date by sender must be later than sending date."
 msgstr ""
 "Fecha de eliminación por el remitente debe ser posterior a la fecha de envío."
 
 #: .\admin.py:53
-msgid "Deletion date by recipient must be later to sending date."
+msgid "Deletion date by recipient must be later than sending date."
 msgstr ""
 "Fecha de eliminación por el destinatario debe ser posterior a la fecha de "
 "envío."
 
 #: .\admin.py:61
-msgid "Response date must be later to sending date."
+msgid "Response date must be later than sending date."
 msgstr "Fecha de respuesta debe ser posterior a la fecha de envío."
 
 #: .\admin.py:63
@@ -56,7 +56,7 @@ msgid "The message cannot be replied without having been read."
 msgstr "El mensaje no puede ser respondido sin haberlo leído."
 
 #: .\admin.py:65
-msgid "Response date must be later to reading date."
+msgid "Response date must be later than reading date."
 msgstr "Fecha de respuesta debe ser posterior a la fecha de lectura."
 
 #: .\admin.py:67
@@ -80,7 +80,7 @@ msgid "Moderation"
 msgstr "Moderación"
 
 #: .\fields.py:27
-msgid "Some usernames are unknown or no more active: {users}."
+msgid "Some usernames are unknown or no longer active: {users}."
 msgstr "Algunos usuarios son desconocidos o no están activos: {users}."
 
 #: .\fields.py:28

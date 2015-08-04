@@ -30,7 +30,7 @@ class BasicCommaSeparatedUserField(CharField):
 
     """
     default_error_messages = {
-        'unknown': _("Some usernames are unknown or no more active: {users}."),
+        'unknown': _("Some usernames are unknown or no longer active: {users}."),
         'max': _("Ensure this value has at most {limit_value} distinct items (it has {show_value})."),
         'min': _("Ensure this value has at least {limit_value} distinct items (it has {show_value})."),
         'filtered': _("Some usernames are rejected: {users}."),

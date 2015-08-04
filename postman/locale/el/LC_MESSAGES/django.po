@@ -3,8 +3,8 @@
 # This file is distributed under the same license as the django-postman package.
 # 
 # Translators:
-# Patrick Samson <maxcom@laposte.net>, 2011.
-# Markos Gogoulos <mgogoulos@gmail.com>, 2011.
+# Patrick Samson <maxcom@laposte.net>, 2011
+# Markos Gogoulos <mgogoulos@gmail.com>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
@@ -33,25 +33,25 @@ msgid "Visitor's email is missing."
 msgstr "Το e-mail του επισκέπτη λείπει."
 
 #: .\admin.py:43
-msgid "Reading date must be later to sending date."
+msgid "Reading date must be later than sending date."
 msgstr ""
 "Η ημερομηνία ανάγνωσης πρέπει να είναι μεταγενέστερη της ημερομηνίας "
 "αποστολής."
 
 #: .\admin.py:48
-msgid "Deletion date by sender must be later to sending date."
+msgid "Deletion date by sender must be later than sending date."
 msgstr ""
 "Η ημερομηνία διαγραφής πρέπει να είναι μεταγενέστερη της ημερομηνίας "
 "αποστολής."
 
 #: .\admin.py:53
-msgid "Deletion date by recipient must be later to sending date."
+msgid "Deletion date by recipient must be later than sending date."
 msgstr ""
 "Η ημερομηνία διαγραφής από τον αποδέκτη πρέπει να είναι μεταγενέστερη της "
 "ημερομηνίας αποστολής."
 
 #: .\admin.py:61
-msgid "Response date must be later to sending date."
+msgid "Response date must be later than sending date."
 msgstr ""
 "Η ημερομηνία ανταπόκρισης πρέπει να είναι μεταγενέστερη της ημερομηνίας "
 "αποστολής."
@@ -61,7 +61,7 @@ msgid "The message cannot be replied without having been read."
 msgstr "Το μήνυμα δεν μπορεί να απαντηθεί χωρίς να έχει πρώτα διαβάσει."
 
 #: .\admin.py:65
-msgid "Response date must be later to reading date."
+msgid "Response date must be later than reading date."
 msgstr ""
 "Η ημερομηνία της απόκρισης πρέπει να είναι μεταγενέστερη της ημερομηνίας "
 "ανάγνωσης."
@@ -89,7 +89,7 @@ msgid "Moderation"
 msgstr "Τροποποίηση"
 
 #: .\fields.py:27
-msgid "Some usernames are unknown or no more active: {users}."
+msgid "Some usernames are unknown or no longer active: {users}."
 msgstr "Μερικοί χρήστες είναι άγνωστοι ή δεν είναι πλεον ενεργοί: {users}."
 
 #: .\fields.py:28
