@@ -112,5 +112,5 @@ urlpatterns = patterns('',
     url(r'^archive/$', ArchiveView.as_view(), name='postman_archive'),
     url(r'^delete/$', DeleteView.as_view(), name='postman_delete'),
     url(r'^undelete/$', UndeleteView.as_view(), name='postman_undelete'),
-    (r'^$', RedirectView.as_view(url='inbox/')),
+    (r'^$', RedirectView.as_view(url='inbox/', permanent=True)),
 )
