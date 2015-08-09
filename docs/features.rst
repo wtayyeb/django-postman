@@ -214,6 +214,8 @@ Example::
         'arg_default': 'postman_users',
     }
 
+Don't forget that not-custom channels are restricted to users having the ``is_staff`` property.
+
 In case of version 1.1.4/5 of django-ajax-selects:
 
 	Support for multiple recipients is not turned on by default by `django-ajax-selects`_.
@@ -234,11 +236,18 @@ In case of version 1.2.x of django-ajax-selects:
 	and AJAX_SELECT_INLINES.
 	Support for multiple recipients is not as simple as an option: see the examples in the `jQuery UI demos`_.
 
-.. _`jQuery UI demos`: http://jqueryui.com/demos/autocomplete/multiple-remote.html
+.. _`jQuery UI demos`: http://jqueryui.com/resources/demos/autocomplete/multiple-remote.html
 
 	You can use the following working implementation example:
 
 	* :file:`postman/templates/autocomplete_postman_multiple_as1-2.html`
+
+In case of version 1.3.x of django-ajax-selects:
+
+	To make your own :file:`templates/autocomplete.html` or :file:`templates/autocomplete_<channel>.html`,
+	you can use the following working implementation example:
+
+	* :file:`postman/templates/autocomplete_postman_multiple_as1-3.html`
 
 Customization
 ~~~~~~~~~~~~~
