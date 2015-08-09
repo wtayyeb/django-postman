@@ -21,6 +21,7 @@
 {# dj v1.2 #}{# {{ MEDIA_URL }}css/jquery.autocomplete.css #}
 " />{# else: for version 1.2.x use AJAX_SELECT_BOOTSTRAP + AJAX_SELECT_INLINES or arrange to include jqueryUI/js/css #}{% endif %}{% endif %}
 {% endif %}
+{{ form.media }}{# for ajax_selects (v1.3.6 at least) #}
 {% endblock %}
 {% block content %}
 <div id="postman">
