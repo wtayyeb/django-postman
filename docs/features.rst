@@ -160,11 +160,16 @@ An example, with the django-relationships application::
 
 The filter will be called for each couple, to validate that the exchange is possible.
 
+*New in version 3.3.0*
+In the case of a reply, there is an additional call for the implicit recipient when it is a User.
+The value of the ``recipients_list`` parameter allows to differentiate the context.
+
 *Inputs*:
 
 * ``sender``: a User instance, as the sender of the message, or None if the writer is not authenticated
 * ``recipient``: a User instance, as the recipient of the message
-* ``recipients_list``: the full list of recipients.
+* ``recipients_list``: the full list of recipients
+  or (*New in version 3.3.0*) None in the case of the implicit recipient for a reply.
   Provided as a convenient additional element of decision.
 
 *Output*:
@@ -221,7 +226,7 @@ In case of version 1.1.4/5 of django-ajax-selects:
 	Support for multiple recipients is not turned on by default by `django-ajax-selects`_.
 	To allow this capability, you have to pass the option ``multiple: true`` to jquery-plugin-autocomplete.
 
-.. _`django-ajax-selects`: http://code.google.com/p/django-ajax-selects/
+.. _`django-ajax-selects`: https://github.com/crucialfelix/django-ajax-selects
 
 	Make your own templates, based on these two files, given as implementation examples:
 
@@ -242,7 +247,7 @@ In case of version 1.2.x of django-ajax-selects:
 
 	* :file:`postman/templates/autocomplete_postman_multiple_as1-2.html`
 
-In case of version 1.3.x of django-ajax-selects:
+*New in version 3.3.0* In case of version 1.3.x of django-ajax-selects:
 
 	To make your own :file:`templates/autocomplete.html` or :file:`templates/autocomplete_<channel>.html`,
 	you can use the following working implementation example:

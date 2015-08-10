@@ -73,7 +73,7 @@ class BaseWriteForm(forms.ModelForm):
         'filtered_user_with_reason': _("{username} ({reason})"),
     }
     def clean_recipients(self):
-        """Check no filter prohibit the exchange."""
+        """Check no filter prohibits the exchange."""
         recipients = self.cleaned_data['recipients']
         exchange_filter = getattr(self, 'exchange_filter', None)
         if exchange_filter:
@@ -182,9 +182,22 @@ class BaseReplyForm(BaseWriteForm):
         self.recipient = recipient
 
     def clean(self):
-        """Check that the recipient is correctly initialized."""
+        """Check that the recipient is correctly initialized and no filter prohibits the exchange."""
         if not self.recipient:
             raise forms.ValidationError(ugettext("Undefined recipient."))
+
+        exchange_filter = getattr(self, 'exchange_filter', None)
+        if exchange_filter and isinstance(self.recipient, get_user_model()):
+            try:
+                reason = exchange_filter(self.instance.sender, self.recipient, None)
+                if reason is not None:
+                    raise forms.ValidationError(self.error_messages['filtered'].format(
+                        users=self.error_messages[
+                            'filtered_user_with_reason' if reason else 'filtered_user'
+                        ].format(username=get_user_name(self.recipient), reason=reason)
+                    ))
+            except forms.ValidationError as e:
+                raise forms.ValidationError(e.messages)
         return super(BaseReplyForm, self).clean()
 
     def save(self, *args, **kwargs):

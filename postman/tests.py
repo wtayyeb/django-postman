@@ -640,17 +640,22 @@ class ViewTest(BaseTest):
         response = self.client.post(reverse('postman_reply_with_user_filter_exception', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', ['first good reason',"anyway, I don't like bar"])
 
+        # filter is also applied to the implicit recipient
         response = self.client.post(reverse('postman_reply_with_exch_filter_reason', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar (some reason).")
+        self.assertFormError(response, 'form', None, "Writing to some users is not possible: bar (some reason).")
 
         response = self.client.post(reverse('postman_reply_with_exch_filter_no_reason', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar, baz.")
+        self.assertFormError(response, 'form', None, "Writing to some users is not possible: bar.")
 
         response = self.client.post(reverse('postman_reply_with_exch_filter_false', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar, baz.")
+        self.assertFormError(response, 'form', None, "Writing to some users is not possible: bar.")
 
         response = self.client.post(reverse('postman_reply_with_exch_filter_exception', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', ['first good reason',"anyway, I don't like bar"])
+        self.assertFormError(response, 'form', None, ['first good reason',"anyway, I don't like bar"])
 
     def test_reply_post_moderate(self):
         "Test 'auto_moderators' parameter."
