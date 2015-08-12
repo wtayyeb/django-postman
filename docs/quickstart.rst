@@ -265,4 +265,4 @@ Examples
 
 :file:`urls.py`::
 
-    (r'^messages/', include('postman.urls')),
+    (r'^messages/', include('postman.urls', namespace='postman', app_name='postman')),

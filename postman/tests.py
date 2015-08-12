@@ -94,7 +94,7 @@ class TransactionViewTest(TransactionTestCase):
 
     def test(self):
         "Test possible clash between transaction.commit_on_success and transaction.atomic (Django 1.6)."
-        url = reverse('postman_write')
+        url = reverse('postman:write')
         data = {'recipients': self.user2.get_username(), 'subject': 's'}
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.post(url, data)
@@ -218,7 +218,6 @@ class BaseTest(TestCase):
             reload_module(sys.modules['postman.fields'])
             reload_module(sys.modules['postman.forms'])
             reload_module(sys.modules['postman.views'])
-            reload_module(sys.modules['postman.urls'])
         except KeyError:  # happens once at the setUp
             pass
         reload_module(get_resolver(get_urlconf()).urlconf_module)
@@ -230,10 +229,10 @@ class ViewTest(BaseTest):
     """
     def test_home(self):
         response = self.client.get('/messages/')
-        self.assertRedirects(response, reverse('postman_inbox'), status_code=301, target_status_code=302)
+        self.assertRedirects(response, reverse('postman:inbox'), status_code=301, target_status_code=302)
 
     def check_folder(self, folder):
-        url = reverse('postman_' + folder, args=[OPTION_MESSAGES])
+        url = reverse('postman:' + folder, args=[OPTION_MESSAGES])
         template = "postman/{0}.html".format(folder)
         # anonymous
         response = self.client.get(url)
@@ -242,7 +241,7 @@ class ViewTest(BaseTest):
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.get(url)
         self.assertTemplateUsed(response, template)
-        url = reverse('postman_' + folder)
+        url = reverse('postman:' + folder)
         response = self.client.get(url)
         self.assertTemplateUsed(response, template)
 
@@ -260,7 +259,7 @@ class ViewTest(BaseTest):
 
     def check_template(self, action, args):
         # don't want to bother with additional templates; test only the parameter passing
-        url = reverse('postman_' + action + '_template', args=args)
+        url = reverse('postman:' + action + '_template', args=args)
         self.assertRaises(TemplateDoesNotExist, self.client.get, url)
 
     def test_template(self):
@@ -280,7 +279,7 @@ class ViewTest(BaseTest):
 
     def test_write_authentication(self):
         "Test permission and what template & form are used."
-        url = reverse('postman_write')
+        url = reverse('postman:write')
         template = "postman/write.html"
         # anonymous is allowed
         response = self.client.get(url)
@@ -303,27 +302,27 @@ class ViewTest(BaseTest):
         "Test the passing of recipient names in URL."
         template = "postman/write.html"
 
-        url = reverse('postman_write', args=['foo'])
+        url = reverse('postman:write', args=['foo'])
         response = self.client.get(url)
         self.assertContains(response, 'value="foo"')
 
-        url = reverse('postman_write', args=['foo:bar'])
+        url = reverse('postman:write', args=['foo:bar'])
         response = self.client.get(url)
         self.assertContains(response, 'value="bar, foo"')
 
-        url = reverse('postman_write', args=[':foo::intruder:bar:a-b+c@d.com:foo:'])
+        url = reverse('postman:write', args=[':foo::intruder:bar:a-b+c@d.com:foo:'])
         response = self.client.get(url)
         self.assertContains(response, 'value="bar, foo"')
 
         # because of Custom User Model, do allow almost any character, not only '^[\w.@+-]+$' of the legacy django.contrib.auth.User model
         get_user_model().objects.create_user("Le Créac'h", 'foobar@domain.com', 'pass')  # even: space, accentued, qootes
-        url = reverse('postman_write', args=["Le Créac'h"])
+        url = reverse('postman:write', args=["Le Créac'h"])
         response = self.client.get(url)
         self.assertContains(response, 'value="Le Créac&#39;h"')
 
     def test_write_auto_complete(self):
         "Test the 'autocomplete_channels' parameter."
-        url = reverse('postman_write_auto_complete')
+        url = reverse('postman:write_auto_complete')
         # anonymous
         response = self.client.get(url)
         f = response.context['form'].fields['recipients']
@@ -338,7 +337,7 @@ class ViewTest(BaseTest):
 
     def check_init_by_query_string(self, action, args=[]):
         template = "postman/{0}.html".format(action)
-        url = reverse('postman_' + action, args=args)
+        url = reverse('postman:' + action, args=args)
         response = self.client.get(url + '?subject=that%20is%20the%20subject')
         self.assertContains(response, 'value="that is the subject"')
         response = self.client.get(url + '?body=this%20is%20my%20body')
@@ -370,8 +369,8 @@ class ViewTest(BaseTest):
 
     def check_write_post(self, extra={}, is_anonymous=False):
         "Check message generation, redirection, and mandatory fields."
-        url = reverse('postman_write')
-        url_with_success_url = reverse('postman_write_with_success_url_to_sent')
+        url = reverse('postman:write')
+        url_with_success_url = reverse('postman:write_with_success_url_to_sent')
         data = {'recipients': self.user2.get_username(), 'subject': 's', 'body': 'b'}
         data.update(extra)
         # default redirect is to the requestor page
@@ -383,11 +382,11 @@ class ViewTest(BaseTest):
         self.check_message(m, is_anonymous)
         # fallback redirect is to inbox. So redirect again when login is required
         response = self.client.post(url, data)
-        self.assertRedirects(response, reverse('postman_inbox'), target_status_code=302 if is_anonymous else 200)
+        self.assertRedirects(response, reverse('postman:inbox'), target_status_code=302 if is_anonymous else 200)
         self.check_message(Message.objects.get(pk=pk+1), is_anonymous)
         # redirect url may be superseded
         response = self.client.post(url_with_success_url, data, HTTP_REFERER=url)
-        self.assertRedirects(response, reverse('postman_sent'), target_status_code=302 if is_anonymous else 200)
+        self.assertRedirects(response, reverse('postman:sent'), target_status_code=302 if is_anonymous else 200)
         self.check_message(Message.objects.get(pk=pk+2), is_anonymous)
         # query string has highest precedence
         response = self.client.post(url_with_success_url + '?next=' + url, data, HTTP_REFERER='does not matter')
@@ -411,7 +410,7 @@ class ViewTest(BaseTest):
     def test_write_post_multirecipient(self):
         "Test number of recipients constraint."
         from postman.fields import CommaSeparatedUserField
-        url = reverse('postman_write')
+        url = reverse('postman:write')
         data = {
             'email': 'a@b.com', 'subject': 's', 'body': 'b',
             'recipients': '{0}, {1}'.format(self.user2.get_username(), self.user3.get_username())}
@@ -427,7 +426,7 @@ class ViewTest(BaseTest):
         self.check_message(msgs[0], recipient_username='baz')
         self.check_message(msgs[1])
 
-        url_with_max = reverse('postman_write_with_max')
+        url_with_max = reverse('postman:write_with_max')
         response = self.client.post(url_with_max, data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', CommaSeparatedUserField.default_error_messages['max'].format(limit_value=1, show_value=2))
 
@@ -437,42 +436,42 @@ class ViewTest(BaseTest):
 
     def test_write_post_filters(self):
         "Test user- and exchange- filters."
-        url = reverse('postman_write')
+        url = reverse('postman:write')
         data = {
             'subject': 's', 'body': 'b',
             'recipients': '{0}, {1}'.format(self.user2.get_username(), self.user3.get_username())}
         self.assertTrue(self.client.login(username='foo', password='pass'))
 
-        response = self.client.post(reverse('postman_write_with_user_filter_reason'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_user_filter_reason'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Some usernames are rejected: bar (some reason).")
 
-        response = self.client.post(reverse('postman_write_with_user_filter_no_reason'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_user_filter_no_reason'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Some usernames are rejected: bar, baz.")
 
-        response = self.client.post(reverse('postman_write_with_user_filter_false'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_user_filter_false'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Some usernames are rejected: bar, baz.")
 
-        response = self.client.post(reverse('postman_write_with_user_filter_exception'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_user_filter_exception'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', ['first good reason',"anyway, I don't like bar"])
 
-        response = self.client.post(reverse('postman_write_with_exch_filter_reason'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_exch_filter_reason'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar (some reason).")
 
-        response = self.client.post(reverse('postman_write_with_exch_filter_no_reason'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_exch_filter_no_reason'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar, baz.")
 
-        response = self.client.post(reverse('postman_write_with_exch_filter_false'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_exch_filter_false'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar, baz.")
 
-        response = self.client.post(reverse('postman_write_with_exch_filter_exception'), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:write_with_exch_filter_exception'), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', ['first good reason',"anyway, I don't like bar"])
 
     def test_write_post_moderate(self):
         "Test 'auto_moderators' parameter."
-        url = reverse('postman_write')
+        url = reverse('postman:write')
         data = {'subject': 's', 'body': 'b', 'recipients': self.user2.get_username()}
         self.assertTrue(self.client.login(username='foo', password='pass'))
-        response = self.client.post(reverse('postman_write_moderate'), data, HTTP_REFERER=url, follow=True)
+        response = self.client.post(reverse('postman:write_moderate'), data, HTTP_REFERER=url, follow=True)
         self.assertRedirects(response, url)
         self.check_contrib_messages(response, 'Message rejected for at least one recipient.')
         self.check_status(Message.objects.get(), status=STATUS_REJECTED, recipient_deleted_at=True,
@@ -481,7 +480,7 @@ class ViewTest(BaseTest):
     def test_write_notification(self):
         "Test the fallback for the site name in the generation of a notification, when the django.contrib.sites app is not installed."
         settings.POSTMAN_AUTO_MODERATE_AS = True  # will generate an acceptance notification
-        url = reverse('postman_write')
+        url = reverse('postman:write')
         data = {'subject': 's', 'body': 'b', 'recipients': self.user2.get_username()}
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.post(url, data, HTTP_REFERER=url)
@@ -499,7 +498,7 @@ class ViewTest(BaseTest):
         "Test permission and what template & form are used."
         template = "postman/reply.html"
         pk = self.c21(body="this is my body").pk
-        url = reverse('postman_reply', args=[pk])
+        url = reverse('postman:reply', args=[pk])
         # anonymous
         response = self.client.get(url)
         self.assertRedirects(response, "{0}?{1}={2}".format(settings.LOGIN_URL, REDIRECT_FIELD_NAME, url))
@@ -523,7 +522,7 @@ class ViewTest(BaseTest):
         "Test the 'formatters' parameter."
         template = "postman/reply.html"
         pk = self.c21(body="this is my body").pk
-        url = reverse('postman_reply_formatters', args=[pk])
+        url = reverse('postman:reply_formatters', args=[pk])
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.get(url)
         self.assertTemplateUsed(response, template)
@@ -533,7 +532,7 @@ class ViewTest(BaseTest):
     def test_reply_auto_complete(self):
         "Test the 'autocomplete_channel' parameter."
         pk = self.c21().pk
-        url = reverse('postman_reply_auto_complete', args=[pk])
+        url = reverse('postman:reply_auto_complete', args=[pk])
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.get(url)
         f = response.context['form'].fields['recipients']
@@ -547,7 +546,7 @@ class ViewTest(BaseTest):
         self.assertEqual(response.status_code, 404)
 
     def check_reply_404(self, pk):
-        self.check_404('postman_reply', pk)
+        self.check_404('postman:reply', pk)
 
     def test_reply_id(self):
         "Test all sort of failures."
@@ -571,8 +570,8 @@ class ViewTest(BaseTest):
     def test_reply_post(self):
         "Test message generation and redirection."
         pk = self.c21().pk
-        url = reverse('postman_reply', args=[pk])
-        url_with_success_url = reverse('postman_reply_with_success_url_to_sent', args=[pk])
+        url = reverse('postman:reply', args=[pk])
+        url_with_success_url = reverse('postman:reply_with_success_url_to_sent', args=[pk])
         data = {'subject': 's', 'body': 'b'}
         self.assertTrue(self.client.login(username='foo', password='pass'))
         # default redirect is to the requestor page
@@ -582,11 +581,11 @@ class ViewTest(BaseTest):
         self.check_message(Message.objects.get(pk=pk+1))
         # fallback redirect is to inbox
         response = self.client.post(url, data)
-        self.assertRedirects(response, reverse('postman_inbox'))
+        self.assertRedirects(response, reverse('postman:inbox'))
         self.check_message(Message.objects.get(pk=pk+2))
         # redirect url may be superseded
         response = self.client.post(url_with_success_url, data, HTTP_REFERER=url)
-        self.assertRedirects(response, reverse('postman_sent'))
+        self.assertRedirects(response, reverse('postman:sent'))
         self.check_message(Message.objects.get(pk=pk+3))
         # query string has highest precedence
         response = self.client.post(url_with_success_url + '?next=' + url, data, HTTP_REFERER='does not matter')
@@ -601,7 +600,7 @@ class ViewTest(BaseTest):
         "Test number of recipients constraint."
         from postman.fields import CommaSeparatedUserField
         pk = self.c21().pk
-        url = reverse('postman_reply', args=[pk])
+        url = reverse('postman:reply', args=[pk])
         data = {'subject': 's', 'body': 'b', 'recipients': self.user3.get_username()}
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.post(url, data, HTTP_REFERER=url)
@@ -609,7 +608,7 @@ class ViewTest(BaseTest):
         self.check_message(Message.objects.get(pk=pk+1))
         self.check_message(Message.objects.get(pk=pk+2), recipient_username='baz')
 
-        url_with_max = reverse('postman_reply_with_max', args=[pk])
+        url_with_max = reverse('postman:reply_with_max', args=[pk])
         data.update(recipients='{0}, {1}'.format(self.user2.get_username(), self.user3.get_username()))
         response = self.client.post(url_with_max, data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', CommaSeparatedUserField.default_error_messages['max'].format(limit_value=1, show_value=2))
@@ -624,36 +623,36 @@ class ViewTest(BaseTest):
     def test_reply_post_filters(self):
         "Test user- and exchange- filters."
         pk = self.c21().pk
-        url = reverse('postman_reply', args=[pk])
+        url = reverse('postman:reply', args=[pk])
         data = {'subject': 's', 'body': 'b', 'recipients': '{0}, {1}'.format(self.user2.get_username(), self.user3.get_username())}
         self.assertTrue(self.client.login(username='foo', password='pass'))
 
-        response = self.client.post(reverse('postman_reply_with_user_filter_reason', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_user_filter_reason', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Some usernames are rejected: bar (some reason).")
 
-        response = self.client.post(reverse('postman_reply_with_user_filter_no_reason', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_user_filter_no_reason', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Some usernames are rejected: bar, baz.")
 
-        response = self.client.post(reverse('postman_reply_with_user_filter_false', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_user_filter_false', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Some usernames are rejected: bar, baz.")
 
-        response = self.client.post(reverse('postman_reply_with_user_filter_exception', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_user_filter_exception', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', ['first good reason',"anyway, I don't like bar"])
 
         # filter is also applied to the implicit recipient
-        response = self.client.post(reverse('postman_reply_with_exch_filter_reason', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_exch_filter_reason', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar (some reason).")
         self.assertFormError(response, 'form', None, "Writing to some users is not possible: bar (some reason).")
 
-        response = self.client.post(reverse('postman_reply_with_exch_filter_no_reason', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_exch_filter_no_reason', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar, baz.")
         self.assertFormError(response, 'form', None, "Writing to some users is not possible: bar.")
 
-        response = self.client.post(reverse('postman_reply_with_exch_filter_false', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_exch_filter_false', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', "Writing to some users is not possible: bar, baz.")
         self.assertFormError(response, 'form', None, "Writing to some users is not possible: bar.")
 
-        response = self.client.post(reverse('postman_reply_with_exch_filter_exception', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_with_exch_filter_exception', args=[pk]), data, HTTP_REFERER=url)
         self.assertFormError(response, 'form', 'recipients', ['first good reason',"anyway, I don't like bar"])
         self.assertFormError(response, 'form', None, ['first good reason',"anyway, I don't like bar"])
 
@@ -661,11 +660,11 @@ class ViewTest(BaseTest):
         "Test 'auto_moderators' parameter."
         m = self.c21()
         pk = m.pk
-        url = reverse('postman_reply', args=[pk])
+        url = reverse('postman:reply', args=[pk])
         data = {'subject': 's', 'body': 'b'}
         self.assertTrue(self.client.login(username='foo', password='pass'))
 
-        response = self.client.post(reverse('postman_reply_moderate', args=[pk]), data, HTTP_REFERER=url)
+        response = self.client.post(reverse('postman:reply_moderate', args=[pk]), data, HTTP_REFERER=url)
         self.assertRedirects(response, url)
         # the check_contrib_messages() in test_write_post_moderate() is enough
         self.check_status(Message.objects.get(pk=pk+1), status=STATUS_REJECTED, recipient_deleted_at=True,
@@ -677,7 +676,7 @@ class ViewTest(BaseTest):
         template = "postman/view.html"
         pk1 = self.c12().pk
         pk2 = self.c21(body="this is my body").pk
-        url = reverse('postman_view', args=[pk1])
+        url = reverse('postman:view', args=[pk1])
         # anonymous
         response = self.client.get(url)
         self.assertRedirects(response, "{0}?{1}={2}".format(settings.LOGIN_URL, REDIRECT_FIELD_NAME, url))
@@ -690,7 +689,7 @@ class ViewTest(BaseTest):
         self.assertTrue(response.context['form'] is None)
         self.check_status(Message.objects.get(pk=pk1), status=STATUS_ACCEPTED)
 
-        url = reverse('postman_view', args=[pk2])
+        url = reverse('postman:view', args=[pk2])
         response = self.client.get(url)
         self.assertFalse(response.context['archived'])
         self.assertEqual(response.context['reply_to_pk'], pk2)
@@ -709,7 +708,7 @@ class ViewTest(BaseTest):
         "Test the 'formatters' parameter."
         template = "postman/view.html"
         pk = self.c21(body="this is my body").pk
-        url = reverse('postman_view_formatters', args=[pk])
+        url = reverse('postman:view_formatters', args=[pk])
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.get(url)
         self.assertTemplateUsed(response, template)
@@ -717,7 +716,7 @@ class ViewTest(BaseTest):
         self.assertContains(response, 'bar _ this is my body</textarea>')  # POSTMAN_QUICKREPLY_QUOTE_BODY setting is not involved
 
     def check_view_404(self, pk):
-        self.check_404('postman_view', pk)
+        self.check_404('postman:view', pk)
 
     def test_view_id(self):
         "Test all sort of failures."
@@ -736,7 +735,7 @@ class ViewTest(BaseTest):
         m1.read_at, m1.thread = now(), m1
         m2 = self.c21(parent=m1, thread=m1.thread, body="this is my body")
         m1.replied_at = m2.sent_at; m1.save()
-        url = reverse('postman_view_conversation', args=[m1.pk])
+        url = reverse('postman:view_conversation', args=[m1.pk])
         self.check_status(Message.objects.get(pk=m1.pk), status=STATUS_ACCEPTED, is_new=False, is_replied=True, thread=m1)
         # anonymous
         response = self.client.get(url)
@@ -760,7 +759,7 @@ class ViewTest(BaseTest):
         self.assertContains(response, '\n\nbar wrote:\n&gt; this is my body\n</textarea>')
 
     def check_view_conversation_404(self, thread_id):
-        self.check_404('postman_view_conversation', thread_id)
+        self.check_404('postman:view_conversation', thread_id)
 
     def test_view_conversation_id(self):
         "Test all sort of failures."
@@ -780,7 +779,7 @@ class ViewTest(BaseTest):
         m1.read_at, m1.thread = now(), m1
         m1.save()
         m2 = self.create(sender=self.user2, recipient=self.user1, parent=m1, thread=m1.thread)
-        url = reverse('postman_view_conversation', args=[m1.pk])
+        url = reverse('postman:view_conversation', args=[m1.pk])
         self.check_status(Message.objects.get(pk=m1.pk), status=STATUS_ACCEPTED, is_new=False, thread=m1)
         # existent response but not yet visible to you
         self.assertTrue(self.client.login(username='foo', password='pass'))
@@ -803,7 +802,7 @@ class ViewTest(BaseTest):
         # authenticated
         self.assertTrue(self.client.login(username='foo', password='pass'))
         # default redirect is to the requestor page
-        redirect_url = reverse('postman_sent')
+        redirect_url = reverse('postman:sent')
         response = self.client.post(url, data, HTTP_REFERER=redirect_url, follow=True)  # 'follow' to access messages
         self.assertRedirects(response, redirect_url)
         self.check_contrib_messages(response, success_msg)
@@ -815,16 +814,16 @@ class ViewTest(BaseTest):
         self.check_status(Message.objects.get(pk=pk+3), status=STATUS_ACCEPTED)
         # fallback redirect is to inbox
         response = self.client.post(url, data)  # doesn't hurt if already archived|deleted|undeleted
-        self.assertRedirects(response, reverse('postman_inbox'))
+        self.assertRedirects(response, reverse('postman:inbox'))
         # redirect url may be superseded
         response = self.client.post(url_with_success_url, data, HTTP_REFERER=redirect_url)
-        self.assertRedirects(response, reverse('postman_archives'))
+        self.assertRedirects(response, reverse('postman:archives'))
         # query string has highest precedence
         response = self.client.post(url_with_success_url + '?next=' + redirect_url, data, HTTP_REFERER='does not matter')
         self.assertRedirects(response, redirect_url)
         # missing payload
         response = self.client.post(url, follow=True)
-        self.assertRedirects(response, reverse('postman_inbox'))
+        self.assertRedirects(response, reverse('postman:inbox'))
         self.check_contrib_messages(response, 'Select at least one object.')
 
         # not a POST
@@ -842,7 +841,7 @@ class ViewTest(BaseTest):
         data = {'tpks': str(pk)}
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.post(url, data)
-        self.assertRedirects(response, reverse('postman_inbox'))
+        self.assertRedirects(response, reverse('postman:inbox'))
         # contrib.messages are already tested with check_update()
         sender_kw = 'sender_{0}'.format(field_bit)
         recipient_kw = 'recipient_{0}'.format(field_bit)
@@ -850,7 +849,7 @@ class ViewTest(BaseTest):
         self.check_status(Message.objects.get(pk=pk+1), status=STATUS_ACCEPTED, parent=root_msg, thread=root_msg, **{recipient_kw: field_value})
         # missing payload
         response = self.client.post(url)
-        self.assertRedirects(response, reverse('postman_inbox'))
+        self.assertRedirects(response, reverse('postman:inbox'))
 
         # not a POST
         response = self.client.get(url, data)
@@ -866,7 +865,7 @@ class ViewTest(BaseTest):
         self.c21()
         self.c12()
         self.c13()
-        self.check_update('postman_archive', 'Messages or conversations successfully archived.', 'archived', pk, True)
+        self.check_update('postman:archive', 'Messages or conversations successfully archived.', 'archived', pk, True)
 
     def test_archive_conversation(self):
         "Test archive action on conversations."
@@ -874,7 +873,7 @@ class ViewTest(BaseTest):
         m1.read_at, m1.thread = now(), m1
         m2 = self.c21(parent=m1, thread=m1.thread)
         m1.replied_at = m2.sent_at; m1.save()
-        self.check_update_conversation('postman_archive', m1, 'archived', True)
+        self.check_update_conversation('postman:archive', m1, 'archived', True)
 
     def test_delete(self):
         "Test delete action on messages."
@@ -882,7 +881,7 @@ class ViewTest(BaseTest):
         self.c21()
         self.c12()
         self.c13()
-        self.check_update('postman_delete', 'Messages or conversations successfully deleted.', 'deleted_at', pk, True)
+        self.check_update('postman:delete', 'Messages or conversations successfully deleted.', 'deleted_at', pk, True)
 
     def test_delete_conversation(self):
         "Test delete action on conversations."
@@ -890,7 +889,7 @@ class ViewTest(BaseTest):
         m1.read_at, m1.thread = now(), m1
         m2 = self.c21(parent=m1, thread=m1.thread)
         m1.replied_at = m2.sent_at; m1.save()
-        self.check_update_conversation('postman_delete', m1, 'deleted_at', True)
+        self.check_update_conversation('postman:delete', m1, 'deleted_at', True)
 
     def test_undelete(self):
         "Test undelete action on messages."
@@ -898,7 +897,7 @@ class ViewTest(BaseTest):
         self.c21(recipient_deleted_at=now())
         self.c12(sender_deleted_at=now())
         self.c13()
-        self.check_update('postman_undelete', 'Messages or conversations successfully recovered.', 'deleted_at', pk)
+        self.check_update('postman:undelete', 'Messages or conversations successfully recovered.', 'deleted_at', pk)
 
     def test_undelete_conversation(self):
         "Test undelete action on conversations."
@@ -906,7 +905,7 @@ class ViewTest(BaseTest):
         m1.read_at, m1.thread = now(), m1
         m2 = self.c21(parent=m1, thread=m1.thread, recipient_deleted_at=now())
         m1.replied_at = m2.sent_at; m1.save()
-        self.check_update_conversation('postman_undelete', m1, 'deleted_at')
+        self.check_update_conversation('postman:undelete', m1, 'deleted_at')
 
 
 class FieldTest(BaseTest):

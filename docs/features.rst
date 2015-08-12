@@ -8,13 +8,13 @@ In the pages of your site, you can put links containing the recipient name(s).
 
 Example::
 
-    <a href="{% url 'postman_write' username %}">write to {{ username }}</a>
+    <a href="{% url 'postman:write' username %}">write to {{ username }}</a>
 
 Separate multiple usernames with a ``:`` character.
 
 Example::
 
-    <a href="{% url 'postman_write' 'adm1:adm2:adm3' %}">write to admins</a>
+    <a href="{% url 'postman:write' 'adm1:adm2:adm3' %}">write to admins</a>
 
 Prefilled fields
 ----------------
@@ -23,7 +23,7 @@ You may prefill the contents of some fields by providing a query string in the l
 
 Example::
 
-    <a href="{% url 'postman_write' %}?subject=details request&body=give me details about ...">
+    <a href="{% url 'postman:write' %}?subject=details request&body=give me details about ...">
     ask for details
     </a>
 
@@ -47,7 +47,7 @@ Example::
         # ...
         url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(max=3),
-            name='postman_write'),
+            name='write'),
         # ...
     )
 
@@ -95,7 +95,7 @@ Example::
         # ...
         url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(user_filter=my_user_filter),
-            name='postman_write'),
+            name='write'),
         # ...
     )
 
@@ -154,7 +154,7 @@ An example, with the django-relationships application::
         # ...
         url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(exchange_filter=my_exchange_filter),
-            name='postman_write'),
+            name='write'),
         # ...
     )
 
@@ -277,10 +277,10 @@ Example::
         # ...
         url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(autocomplete_channels=(None,'anonymous_ac')),
-            name='postman_write'),
+            name='write'),
         url(r'^reply/(?P<message_id>[\d]+)/$',
             ReplyView.as_view(autocomplete_channel='reply_ac'),
-            name='postman_reply'),
+            name='reply'),
         # ...
     )
 
@@ -290,7 +290,7 @@ Example::
         # ...
         url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(autocomplete_channels='write_ac'), 
-            name='postman_write'),
+            name='write'),
         # ...
     )
 
