@@ -300,7 +300,8 @@ class Message(models.Model):
         return "{0}>{1}:{2}".format(self.obfuscated_sender, self.obfuscated_recipient, Truncator(self.subject).words(5))
 
     def get_absolute_url(self):
-        return reverse('postman_view', args=[self.pk])
+        "Usage is deprecated since v3.3.0, because it doesn't integrate well with the addition of namespaces."
+        return reverse('postman:view', args=[self.pk])
 
     def is_pending(self):
         """Tell if the message is in the pending state."""

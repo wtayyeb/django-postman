@@ -27,13 +27,13 @@ Examples::
         # ...
         url(r'^write/(?:(?P<recipients>[^/#]+)/)?$',
             WriteView.as_view(form_classes=(MyCustomWriteForm, MyCustomAnonymousWriteForm)),
-            name='postman_write'),
+            name='write'),
         url(r'^reply/(?P<message_id>[\d]+)/$',
             ReplyView.as_view(form_class=MyCustomFullReplyForm),
-            name='postman_reply'),
+            name='reply'),
         url(r'^view/(?P<message_id>[\d]+)/$',
             MessageView.as_view(form_class=MyCustomQuickReplyForm),
-            name='postman_view'),
+            name='view'),
         # ...
     )
 
@@ -48,7 +48,7 @@ Example::
         # ...
         url(r'^view/(?P<message_id>[\d]+)/$',
             MessageView.as_view(template_name='my_custom_view.html'),
-            name='postman_view'),
+            name='view'),
         # ...
     )
 
@@ -77,14 +77,14 @@ Example::
     urlpatterns = patterns('postman.views',
         # ...
         url(r'^reply/(?P<message_id>[\d]+)/$',
-            ReplyView.as_view(success_url='postman_inbox'),
-            name='postman_reply'),
+            ReplyView.as_view(success_url='postman:inbox'),
+            name='reply'),
         # ...
     )
 
 Example::
 
-    <a href="{% url 'postman_reply' reply_to_pk %}?next={{ next_url|urlencode }}">Reply</a>
+    <a href="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}">Reply</a>
 
 reply formatters
 ----------------
@@ -103,10 +103,10 @@ Examples::
         # ...
         url(r'^reply/(?P<message_id>[\d]+)/$',
             ReplyView.as_view(formatters=(format_subject, format_body)),
-            name='postman_reply'),
+            name='reply'),
         url(r'^view/(?P<message_id>[\d]+)/$',
             MessageView.as_view(formatters=(format_subject, format_body)),
-            name='postman_view'),
+            name='view'),
         # ...
     )
 

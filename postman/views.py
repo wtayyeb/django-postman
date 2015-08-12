@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django import VERSION
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -52,7 +53,18 @@ def _get_referer(request):
 ########
 # Views
 ########
-class FolderMixin(object):
+class NamespaceMixin(object):
+    """Common code to manage the namespace."""
+
+    def render_to_response(self, context, **response_kwargs):
+        if VERSION >= (1, 8):
+            self.request.current_app = self.request.resolver_match.namespace
+        else:
+            response_kwargs['current_app'] = self.request.resolver_match.namespace
+        return super(NamespaceMixin, self).render_to_response(context, **response_kwargs)
+
+
+class FolderMixin(NamespaceMixin, object):
     """Code common to the folders."""
     http_method_names = ['get']
 
@@ -70,12 +82,14 @@ class FolderMixin(object):
         if order_by:
             params['order_by'] = order_by
         msgs = getattr(Message.objects, self.folder_name)(self.request.user, **params)
+        viewname = 'postman:' + self.view_name
+        current_instance = self.request.resolver_match.namespace
         context.update({
             'pm_messages': msgs,  # avoid 'messages', already used by contrib.messages
             'by_conversation': option is None,
             'by_message': option == OPTION_MESSAGES,
-            'by_conversation_url': reverse(self.view_name),
-            'by_message_url': reverse(self.view_name, args=[OPTION_MESSAGES]),
+            'by_conversation_url': reverse(viewname, current_app=current_instance),
+            'by_message_url': reverse(viewname, args=[OPTION_MESSAGES], current_app=current_instance),
             'current_url': self.request.get_full_path(),
             'gets': self.request.GET,  # useful to postman_order_by template tag
         })
@@ -96,7 +110,7 @@ class InboxView(FolderMixin, TemplateView):
     """
     # for FolderMixin:
     folder_name = 'inbox'
-    view_name = 'postman_inbox'
+    view_name = 'inbox'
     # for TemplateView:
     template_name = 'postman/inbox.html'
 
@@ -110,7 +124,7 @@ class SentView(FolderMixin, TemplateView):
     """
     # for FolderMixin:
     folder_name = 'sent'
-    view_name = 'postman_sent'
+    view_name = 'sent'
     # for TemplateView:
     template_name = 'postman/sent.html'
 
@@ -124,7 +138,7 @@ class ArchivesView(FolderMixin, TemplateView):
     """
     # for FolderMixin:
     folder_name = 'archives'
-    view_name = 'postman_archives'
+    view_name = 'archives'
     # for TemplateView:
     template_name = 'postman/archives.html'
 
@@ -138,12 +152,12 @@ class TrashView(FolderMixin, TemplateView):
     """
     # for FolderMixin:
     folder_name = 'trash'
-    view_name = 'postman_trash'
+    view_name = 'trash'
     # for TemplateView:
     template_name = 'postman/trash.html'
 
 
-class ComposeMixin(object):
+class ComposeMixin(NamespaceMixin, object):
     """
     Code common to the write and reply views.
 
@@ -175,7 +189,7 @@ class ComposeMixin(object):
         return kwargs
 
     def get_success_url(self):
-        return self.request.GET.get('next') or self.success_url or _get_referer(self.request) or 'postman_inbox'
+        return self.request.GET.get('next') or self.success_url or _get_referer(self.request) or 'postman:inbox'
 
     def form_valid(self, form):
         params = {'auto_moderators': self.auto_moderators}
@@ -298,7 +312,7 @@ class ReplyView(ComposeMixin, FormView):
         return context
 
 
-class DisplayMixin(object):
+class DisplayMixin(NamespaceMixin, object):
     """
     Code common to the by-message and by-conversation views.
 
@@ -347,7 +361,7 @@ class DisplayMixin(object):
             'archived': archived,
             'reply_to_pk': received.pk if received else None,
             'form': self.form_class(initial=received.quote(*self.formatters)) if received else None,
-            'next_url': self.request.GET.get('next') or reverse('postman_inbox'),
+            'next_url': self.request.GET.get('next') or reverse('postman:inbox', current_app=self.request.resolver_match.namespace),
         })
         return context
 
@@ -390,7 +404,7 @@ class UpdateMessageMixin(object):
         return super(UpdateMessageMixin, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        next_url = _get_referer(request) or 'postman_inbox'
+        next_url = _get_referer(request) or 'postman:inbox'
         pks = request.POST.getlist('pks')
         tpks = request.POST.getlist('tpks')
         if pks or tpks:
