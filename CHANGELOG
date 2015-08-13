@@ -2,6 +2,18 @@
 Django Postman changelog
 ========================
 
+Version 3.3.0, August 2015
+--------------------------
+* Added namespace support (Enhancement #18).
+    !WARNING! All view names have changed.
+* Applied the exchange filter also to the recipient of a reply to a User (Proposal #11).
+    !WARNING! The recipient_list parameter in exchange filter functions may be None.
+* Made adjustments for integration with version 1.3.x of django-ajax-selects (Issue #63).
+* Fixed a count() error, could happen for conversations in paginated templates (Issue #60).
+* Added migrations (Issue #58).
+* Added a new variant to POSTMAN_SHOW_USER_AS (Enhancement #44).
+* Added a setting: POSTMAN_NAME_USER_AS (Proposal #42).
+
 Version 3.2.2, April 2015
 -------------------------
 * Made the app working with Django 1.8.
@@ -42,7 +54,7 @@ Version 3.0.0, July 2013
 	but is now limited to the only targeted folder.
 * Converted all function-based views to class-based views.
 * Extended the support of django-notification from version 0.2.0 to 1.0. 
-* Avoided the 'Enter text to search.' help text imposed in version 1.2.5 of ajax_select.
+* Avoided the 'Enter text to search.' help text imposed in version 1.2.5 of django-ajax-selects.
 
 Version 2.1.1, December 2012
 ----------------------------
