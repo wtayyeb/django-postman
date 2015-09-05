@@ -2,6 +2,11 @@
 Django Postman changelog
 ========================
 
+Version 3.3.1, September 2015
+-----------------------------
+* Fixed issue #66, an outdated EmailField max_length.
+* Fixed issue #67, a case of invalid SQL, introduced by the fix of #60.
+
 Version 3.3.0, August 2015
 --------------------------
 * Added namespace support (Enhancement #18).

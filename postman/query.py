@@ -74,7 +74,8 @@ class CompilerProxy(Proxy):
         if index < len(sql):
             new_sql.append(sql[index:])
         new_sql = ''.join(new_sql)
-        return new_sql, params + extra_params
+        heading_param_count = sql[:index].count('%s')
+        return new_sql, params[:heading_param_count] + extra_params + params[heading_param_count:]
 
     def union(self, querysets):
         """

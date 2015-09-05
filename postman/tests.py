@@ -78,7 +78,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.3.0")
+        self.assertEqual(sys.modules['postman'].__version__, "3.3.1")
 
 
 class TransactionViewTest(TransactionTestCase):
@@ -1021,6 +1021,13 @@ class MessageManagerTest(BaseTest):
                 msgs = list(Message.objects.thread(u, Q(pk=pk)))
                 user = msgs[0].sender
                 user = msgs[0].recipient
+
+    def test_query_compiler(self):
+        "Test our custom query compiler, in particular the right sequence of the sql parameters."
+        m = self.c12()
+        qs = Message.objects.inbox(self.user2)  # important: do not use OPTION_MESSAGES
+        self.assertEqual(qs.count(), 1)  # param '*', must stay at the beginning
+        self.assertListEqual(list(qs.filter(recipient_id=2)), [m])  # param 2, must stay at the end
 
     def test(self):
         """

@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('subject', models.CharField(max_length=120, verbose_name='subject')),
                 ('body', models.TextField(verbose_name='body', blank=True)),
-                ('email', models.EmailField(max_length=75, verbose_name='visitor', blank=True)),
+                ('email', models.EmailField(max_length=254, verbose_name='visitor', blank=True)),
                 ('sent_at', models.DateTimeField(default=django.utils.timezone.now, verbose_name='sent at')),
                 ('read_at', models.DateTimeField(null=True, verbose_name='read at', blank=True)),
                 ('replied_at', models.DateTimeField(null=True, verbose_name='replied at', blank=True)),
