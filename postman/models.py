@@ -113,7 +113,7 @@ def get_user_name(user):
     """
     name_user_as = getattr(settings, 'POSTMAN_NAME_USER_AS', None)
     if name_user_as:
-        return getattr(user, name_user_as)
+        return force_text(getattr(user, name_user_as))
     return user.get_username()  # default
 
 

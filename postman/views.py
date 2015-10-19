@@ -17,6 +17,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_text
 try:
     from django.utils.six.moves.urllib.parse import urlsplit, urlunsplit  # Django 1.4.11, 1.5.5
 except ImportError:
@@ -252,7 +253,7 @@ class WriteView(ComposeMixin, FormView):
                     **{'{0}__in'.format(name_user_as): [r.strip() for r in recipients.split(':') if r and not r.isspace()]}
                 ).order_by(name_user_as))
                 if usernames:
-                    initial['recipients'] = ', '.join(usernames)
+                    initial['recipients'] = ', '.join(map(force_text, usernames))
         return initial
 
     def get_form_kwargs(self):
