@@ -78,7 +78,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.3.1")
+        self.assertEqual(sys.modules['postman'].__version__, "3.3.1.post1")
 
 
 class TransactionViewTest(TransactionTestCase):
@@ -91,6 +91,11 @@ class TransactionViewTest(TransactionTestCase):
     def setUp(self):
         self.user1 = get_user_model().objects.create_user('foo', 'foo@domain.com', 'pass')
         self.user2 = get_user_model().objects.create_user('bar', 'bar@domain.com', 'pass')
+        for a in (
+            'POSTMAN_NAME_USER_AS',
+        ):
+            if hasattr(settings, a):
+                delattr(settings, a)
 
     def test(self):
         "Test possible clash between transaction.commit_on_success and transaction.atomic (Django 1.6)."
@@ -315,10 +320,15 @@ class ViewTest(BaseTest):
         self.assertContains(response, 'value="bar, foo"')
 
         # because of Custom User Model, do allow almost any character, not only '^[\w.@+-]+$' of the legacy django.contrib.auth.User model
-        get_user_model().objects.create_user("Le Créac'h", 'foobar@domain.com', 'pass')  # even: space, accentued, qootes
+        get_user_model().objects.create_user("Le Créac'h", 'foobar@domain.com', 'pass')  # even: space, accentued, quotes
         url = reverse('postman:write', args=["Le Créac'h"])
         response = self.client.get(url)
         self.assertContains(response, 'value="Le Créac&#39;h"')
+
+        settings.POSTMAN_NAME_USER_AS = 'id'  # test int values compliance with processings using str.join()
+        url = reverse('postman:write', args=['1:2'])
+        response = self.client.get(url)
+        self.assertContains(response, 'value="1, 2"')
 
     def test_write_auto_complete(self):
         "Test the 'autocomplete_channels' parameter."
@@ -955,6 +965,9 @@ class FieldTest(BaseTest):
         self.user1.is_active = False
         self.user1.save()
         self.assertRaises(ValidationError, f.clean, 'foo, bar')
+        # int values compliance with processings using str.join()
+        settings.POSTMAN_NAME_USER_AS = 'id'
+        self.assertEqual(f.clean('2'), [self.user2])
 
     def test_user_filter(self):
         "Test the 'user_filter' argument."
@@ -1770,6 +1783,8 @@ class UtilsTest(BaseTest):
         # a property name
         settings.POSTMAN_NAME_USER_AS = 'email'
         self.assertEqual(get_user_name(self.user1), "foo@domain.com")
+        settings.POSTMAN_NAME_USER_AS = 'id'  # a string is always returned even for not character types
+        self.assertEqual(get_user_name(self.user1), "1")
 
 
 class ApiTest(BaseTest):
