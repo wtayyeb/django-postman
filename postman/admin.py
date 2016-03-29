@@ -109,6 +109,7 @@ class MessageAdmin(admin.ModelAdmin):
             'moderation_reason',
             )}),
     )
+    raw_id_fields = ('sender', 'recipient')  # <select> may be overflowed for large sites
     readonly_fields = (
         'parent', 'thread',  # no reason to change, and anyway too many objects
         'moderation_date', 'moderation_by',  # automatically set at status change
