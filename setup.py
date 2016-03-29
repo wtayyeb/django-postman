@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name='django-postman',
@@ -14,6 +14,7 @@ setup(
     packages=find_packages(exclude=('docs',)),
     include_package_data=True,
     keywords='django messages messaging email moderation',
+    zip_safe=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

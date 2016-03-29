@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{# not myself but a site-level one (TEMPLATE_DIRS setting) #}
 {% load i18n %}{% load postman_tags %}
 {% block title %}{% trans "Messaging" %}{% endblock %}
 {% block extrahead %}{{ block.super }}
