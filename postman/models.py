@@ -12,15 +12,8 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import six
 from django.utils.encoding import force_text, python_2_unicode_compatible
-try:
-    from django.utils.text import Truncator  # Django 1.4
-except ImportError:
-    from postman.future_1_4 import Truncator
-try:
-    from django.utils.timezone import now  # Django 1.4 aware datetimes
-except ImportError:
-    from datetime import datetime
-    now = datetime.now
+from django.utils.text import Truncator
+from django.utils.timezone import now
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 from . import OPTION_MESSAGES
@@ -49,10 +42,7 @@ def setup():
     For backwards compatibility, also called on first need.
 
     """
-    try:
-        from django.contrib.auth import get_user_model  # Django 1.5
-    except ImportError:
-        from postman.future_1_5 import get_user_model
+    from django.contrib.auth import get_user_model
     name_user_as = getattr(settings, 'POSTMAN_NAME_USER_AS', get_user_model().USERNAME_FIELD)
     ORDER_BY_FIELDS.update({
         'f': 'sender__' + name_user_as,     # as 'from'

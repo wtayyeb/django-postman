@@ -180,7 +180,7 @@ or only view it as an example.
 You may need to adjust some templates to match your version of Django.
 Permute the comment tags for the lines denoted by the marks: {# dj v1.x #} in:
 
-* base_write.html
+* (currently no case)
 
 Relations between templates::
 
@@ -194,19 +194,6 @@ Relations between templates::
     |  |_ write.html
     |  |_ reply.html
     |_ view.html
-
-If the autocomplete application is django-ajax-selects in version 1.1.4 or 1.1.5, the following URLs are referenced by this set:
-
-* js/jquery.min.js
-* js/jquery.autocomplete.min.js
-* css/jquery.autocomplete.css
-* css/indicator.gif
-
-You may have to adjust the path prefix with your version of Django:
-{{ MEDIA_URL }} or {{ STATIC_URL }} or {% admin_media_prefix %} or {% static '... %} or {% static 'admin/... %}.
-
-These files are part of the requirements of django-ajax-selects version 1.1.x and
-it's up to you to make them accessible in your project (they are not provided by the django-postman app).
 
 The :file:`postman/base.html` template extends a :file:`base.html` site template,
 in which some blocks are expected:

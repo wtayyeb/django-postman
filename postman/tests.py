@@ -38,11 +38,7 @@ import re
 import sys
 
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
-try:
-    from django.contrib.auth import get_user_model  # Django 1.5
-except ImportError:
-    from postman.future_1_5 import get_user_model
+from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sites.models import Site
 from django.core import mail
@@ -51,15 +47,12 @@ from django.core.urlresolvers import reverse, clear_url_caches, get_resolver, ge
 from django.db.models import Q
 from django.http import QueryDict
 from django.template import Template, Context, TemplateSyntaxError, TemplateDoesNotExist
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase, TransactionTestCase#, override_settings
 from django.utils.encoding import force_text
 from django.utils.formats import localize
 from django.utils import six
 from django.utils.six.moves import reload_module
-try:
-    from django.utils.timezone import now  # Django 1.4 aware datetimes
-except ImportError:
-    now = datetime.now
+from django.utils.timezone import localtime, now
 from django.utils.translation import activate, deactivate
 
 from . import OPTION_MESSAGES
@@ -106,6 +99,7 @@ class TransactionViewTest(TransactionTestCase):
         self.assertTrue(Message.objects.get())
 
 
+# @override_settings(ROOT_URLCONF='postman.urls_for_tests')  not usable for test_template() ; ticket/26427
 class BaseTest(TestCase):
     """
     Common configuration and helper functions for all tests.
@@ -351,7 +345,7 @@ class ViewTest(BaseTest):
         response = self.client.get(url + '?subject=that%20is%20the%20subject')
         self.assertContains(response, 'value="that is the subject"')
         response = self.client.get(url + '?body=this%20is%20my%20body')
-        # before Dj 1.5: 'name="body">this is my body' ; after: 'name="body">\r\nthis is my body'
+        # before Django 1.5: 'name="body">this is my body' ; after: 'name="body">\r\nthis is my body'
         self.assertContains(response, 'this is my body</textarea>')
 
     def test_write_querystring(self):
@@ -1008,9 +1002,6 @@ class MessageManagerTest(BaseTest):
     """
     def test_num_queries(self):
         "Test the number of queries."
-        # not available in django v1.2.3
-        if not hasattr(self, 'assertNumQueries'):
-            return
         pk = self.c12().pk
         self.c21()
         self.c12(sender_archived=True, recipient_deleted_at=now())
@@ -1650,14 +1641,7 @@ class FiltersTest(BaseTest):
     def test_compact_date(self):
         "Test '|compact_date'."
         dt = now()
-        try:
-            from django.utils.timezone import localtime  # Django 1.4 aware datetimes
-            # (1.4) template/base.py/_render_value_in_context()
-            dt = localtime(dt)
-        except ImportError:
-            pass
-        # (1.2) template/__init__.py/_render_value_in_context()
-        # (1.3) template/base.py/_render_value_in_context()
+        dt = localtime(dt)
         # (1.6) template/base.py/render_value_in_context()
         default = force_text(localize(dt))
 

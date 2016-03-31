@@ -4,11 +4,7 @@ from optparse import make_option
 
 from django.core.management.base import NoArgsCommand
 from django.db.models import Max, Count, F, Q
-try:
-    from django.utils.timezone import now   # Django 1.4 aware datetimes
-except ImportError:
-    from datetime import datetime
-    now = datetime.now
+from django.utils.timezone import now
 
 from postman.models import Message
 

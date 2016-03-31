@@ -4,11 +4,11 @@ URLconf for tests.py usage.
 """
 from __future__ import unicode_literals
 
+from django import VERSION
 from django.conf import settings
-try:
-    from django.conf.urls import patterns, include, url  # django 1.4
-except ImportError:
-    from django.conf.urls.defaults import *  # "patterns, include, url" is enough for django 1.3, "*" for django 1.2
+from django.conf.urls import include, url
+from django.contrib.auth.views import login
+from django.core.urlresolvers import reverse_lazy
 from django.forms import ValidationError
 from django.views.generic.base import RedirectView
 
@@ -59,7 +59,7 @@ def format_subject(subject):
 def format_body(sender, body):
     return "{0} _ {1}".format(sender, body)
 
-postman_patterns = patterns('',
+postman_patterns = [
     # Basic set
     url(r'^inbox/(?:(?P<option>'+OPTIONS+')/)?$', InboxView.as_view(), name='inbox'),
     url(r'^sent/(?:(?P<option>'+OPTIONS+')/)?$', SentView.as_view(), name='sent'),
@@ -72,7 +72,9 @@ postman_patterns = patterns('',
     url(r'^archive/$', ArchiveView.as_view(), name='archive'),
     url(r'^delete/$', DeleteView.as_view(), name='delete'),
     url(r'^undelete/$', UndeleteView.as_view(), name='undelete'),
-    (r'^$', RedirectView.as_view(url='inbox/', permanent=True)),
+    # Django 1.9 "HTTP redirects no longer forced to absolute URIs"
+    # and test.Client doesn't support relative-path reference, such as url='inbox/' ; ticket/26428
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('postman:inbox'), permanent=True)),
 
     # Customized set
     # 'success_url'
@@ -122,21 +124,25 @@ postman_patterns = patterns('',
     url(r'^reply_template/(?P<message_id>[\d]+)/$', ReplyView.as_view(template_name='postman/fake.html'), name='reply_template'),
     url(r'^view_template/(?P<message_id>[\d]+)/$', MessageView.as_view(template_name='postman/fake.html'), name='view_template'),
     url(r'^view_template/t/(?P<thread_id>[\d]+)/$', ConversationView.as_view(template_name='postman/fake.html'), name='view_conversation_template'),
-)
+]
 
-urlpatterns = patterns('',
-    (r'^accounts/login/$', 'django.contrib.auth.views.login'),  # because of the login_required decorator
-    (r'^messages/', include((postman_patterns, 'postman', 'postman'))),  # (<patterns object>, <application namespace>, <instance namespace>)
-)
+urlpatterns = [
+    url(r'^accounts/login/$', login),  # because of the login_required decorator
+    url(r'^messages/',
+        # (<patterns object>, <application namespace>, <instance namespace>)
+        include((postman_patterns, 'postman', 'postman')) if VERSION < (1, 9)
+        # (<patterns object>, <application namespace>), namespace=<instance namespace>
+        else include((postman_patterns, 'postman'), namespace='postman')),
+]
 
 # because of fields.py/AutoCompleteWidget/render()/reverse()
 if 'ajax_select' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        (r'^ajax_select/', include('ajax_select.urls')),  # django-ajax-selects
-    )
+    urlpatterns += [
+        url(r'^ajax_select/', include('ajax_select.urls')),  # django-ajax-selects
+    ]
 
 # optional
 if 'notification' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        (r'^notification/', include('notification.urls')),  # django-notification
-    )
+    urlpatterns += [
+        url(r'^notification/', include('notification.urls')),  # django-notification
+    ]

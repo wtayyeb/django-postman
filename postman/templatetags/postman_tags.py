@@ -2,10 +2,7 @@ from __future__ import unicode_literals
 import datetime
 
 from django import VERSION
-try:
-    from django.contrib.auth import get_user_model  # Django 1.5
-except ImportError:
-    from postman.future_1_5 import get_user_model
+from django.contrib.auth import get_user_model
 from django.http import QueryDict
 from django.template import Node
 from django.template import TemplateSyntaxError

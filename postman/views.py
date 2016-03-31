@@ -4,10 +4,7 @@ from django import VERSION
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-try:
-    from django.contrib.auth import get_user_model  # Django 1.5
-except ImportError:
-    from postman.future_1_5 import get_user_model
+from django.contrib.auth import get_user_model
 try:
     from django.contrib.sites.shortcuts import get_current_site  # Django 1.7
 except ImportError:
@@ -22,11 +19,7 @@ try:
     from django.utils.six.moves.urllib.parse import urlsplit, urlunsplit  # Django 1.4.11, 1.5.5
 except ImportError:
     from urlparse import urlsplit, urlunsplit
-try:
-    from django.utils.timezone import now  # Django 1.4 aware datetimes
-except ImportError:
-    from datetime import datetime
-    now = datetime.now
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import FormView, TemplateView, View

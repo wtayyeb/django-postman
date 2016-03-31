@@ -13,10 +13,7 @@ name = getattr(settings, 'POSTMAN_NOTIFIER_APP', 'notification')
 if name and name in settings.INSTALLED_APPS:
     name = name + '.models'
     notification = import_module(name)
-    try:
-        create = notification.NoticeType.create  # django-notification 1.0
-    except AttributeError:
-        create = notification.create_notice_type  # django-notification 0.2.0 (works only with DJ <= 1.3)
+    create = notification.NoticeType.create
 
     def create_notice_types(*args, **kwargs):
         create("postman_rejection", _("Message Rejected"), _("Your message has been rejected"))
