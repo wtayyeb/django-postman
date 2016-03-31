@@ -19,11 +19,7 @@ for e in events:
 from __future__ import unicode_literals
 
 from django.contrib.sites.models import Site
-try:
-    from django.utils.timezone import now  # Django 1.4 aware datetimes
-except ImportError:
-    from datetime import datetime
-    now = datetime.now
+from django.utils.timezone import now
 
 from postman.models import Message, STATUS_PENDING, STATUS_ACCEPTED
 

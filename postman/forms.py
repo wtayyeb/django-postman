@@ -16,10 +16,7 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.conf import settings
-try:
-    from django.contrib.auth import get_user_model  # Django 1.5
-except ImportError:
-    from postman.future_1_5 import get_user_model
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils.translation import ugettext, ugettext_lazy as _
 
