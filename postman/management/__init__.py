@@ -20,5 +20,5 @@ if name and name in settings.INSTALLED_APPS:
         create("postman_message", _("Message Received"), _("You have received a message"))
         create("postman_reply", _("Reply Received"), _("You have received a reply"))
 
-    signals.post_syncdb.connect(create_notice_types, sender=notification)
+    signals.post_migrate.connect(create_notice_types, sender=notification)
 
