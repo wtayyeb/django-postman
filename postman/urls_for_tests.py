@@ -74,7 +74,9 @@ postman_patterns = [
     url(r'^undelete/$', UndeleteView.as_view(), name='undelete'),
     # Django 1.9 "HTTP redirects no longer forced to absolute URIs"
     # and test.Client doesn't support relative-path reference, such as url='inbox/' ; ticket/26428
-    url(r'^$', RedirectView.as_view(url=reverse_lazy('postman:inbox'), permanent=True)),
+    url(r'^$', RedirectView.as_view(
+        url=reverse_lazy('postman:inbox') if VERSION >= (1, 9) and VERSION < (1, 9, 6) else 'inbox/',
+        permanent=True)),
 
     # Customized set
     # 'success_url'
