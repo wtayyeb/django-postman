@@ -37,6 +37,7 @@ from datetime import datetime, timedelta
 import re
 import sys
 
+from django import VERSION
 from django.conf import settings
 from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME
 from django.contrib.auth.models import AnonymousUser
@@ -47,7 +48,9 @@ from django.core.urlresolvers import reverse, clear_url_caches, get_resolver, ge
 from django.db.models import Q
 from django.http import QueryDict
 from django.template import Template, Context, TemplateSyntaxError, TemplateDoesNotExist
-from django.test import TestCase, TransactionTestCase#, override_settings
+from django.test import TestCase, TransactionTestCase
+if VERSION >= (1, 10):
+    from django.test import override_settings
 from django.utils.encoding import force_text
 from django.utils.formats import localize
 from django.utils import six
@@ -99,12 +102,12 @@ class TransactionViewTest(TransactionTestCase):
         self.assertTrue(Message.objects.get())
 
 
-# @override_settings(ROOT_URLCONF='postman.urls_for_tests')  not usable for test_template() ; ticket/26427
 class BaseTest(TestCase):
     """
     Common configuration and helper functions for all tests.
     """
-    urls = 'postman.urls_for_tests'
+    if VERSION < (1, 10):  # see comments about the decoration below
+        urls = 'postman.urls_for_tests'
 
     def setUp(self):
         deactivate()  # necessary for 1.4 to consider a new settings.LANGUAGE_CODE; 1.3 is fine with or without
@@ -220,6 +223,9 @@ class BaseTest(TestCase):
         except KeyError:  # happens once at the setUp
             pass
         reload_module(get_resolver(get_urlconf()).urlconf_module)
+# test_template() fails with the decorated way ; ticket/26427, fixed in 1.10a1
+if VERSION >= (1, 10):
+    BaseTest = override_settings(ROOT_URLCONF='postman.urls_for_tests')(BaseTest)
 
 
 class ViewTest(BaseTest):

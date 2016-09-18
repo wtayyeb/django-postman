@@ -281,7 +281,7 @@ class ReplyView(ComposeMixin, FormView):
     def dispatch(self, request, message_id, *args, **kwargs):
         perms = Message.objects.perms(request.user)
         self.parent = get_object_or_404(Message, perms, pk=message_id)
-        return super(ReplyView, self).dispatch(request,*args, **kwargs)
+        return super(ReplyView, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
         self.initial = self.parent.quote(*self.formatters)  # will also be partially used in get_form_kwargs()
