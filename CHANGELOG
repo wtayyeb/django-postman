@@ -2,6 +2,15 @@
 Django Postman changelog
 ========================
 
+Version 3.3.2, September 2016
+-----------------------------
+* Added a pm_site entry in the context passed to the notifier app.
+* Removed support of Django < 1.5, django-ajax-selects 1.1, 1.2, django-notification 0.2.0.
+* Made adjustments for deprecated or removed features in Django 1.9.
+* Adjusted the Admin interface to support large User table.
+* Fixed issue #70, app install must be done in unzipped form (no .egg zipfile).
+* Fixed issue #69, POSTMAN_NAME_USER_AS designating a non string property.
+
 Version 3.3.1, September 2015
 -----------------------------
 * Fixed issue #66, an outdated EmailField max_length.
