@@ -7,9 +7,12 @@ import re
 import sys
 from textwrap import TextWrapper
 
+from django import VERSION
 from django.conf import settings
+from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
+from django.utils.html import strip_tags
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 # make use of a favourite notifier app such as django-notification
@@ -26,8 +29,31 @@ else:
 name = getattr(settings, 'POSTMAN_MAILER_APP', 'mailer')
 if name and name in settings.INSTALLED_APPS:
     send_mail = import_module(name).send_mail
+    if name == 'mailer':  # the app didn't adjust to the signature change in Django 1.7 (last check: v1.2.2)
+        mailer_send_mail = send_mail
+        mailer_send_html_mail = import_module(name).send_html_mail
+        def send_mail(subject, message, from_email, recipient_list, **kwargs):
+            html_message = kwargs.pop('html_message', None)
+            if html_message:
+                return mailer_send_html_mail(subject, message, html_message, from_email, recipient_list, **kwargs)
+            else:
+                return mailer_send_mail(subject, message, from_email, recipient_list, **kwargs)
 else:
     from django.core.mail import send_mail
+    if VERSION < (1, 7):
+        from django.core.mail import EmailMultiAlternatives
+        legacy_send_mail = send_mail
+        def send_mail(subject, message, from_email, recipient_list, **kwargs):
+            html_message = kwargs.pop('html_message', None)
+            if html_message:
+                send_kwargs = {}
+                fail_silently = kwargs.pop('fail_silently', None)
+                if fail_silently is not None:
+                    send_kwargs['fail_silently'] = fail_silently
+                return EmailMultiAlternatives(subject, message, from_email, recipient_list,
+                        alternatives=[(html_message, 'text/html')], **kwargs).send(**send_kwargs)
+            else:
+                return legacy_send_mail(subject, message, from_email, recipient_list, **kwargs)
 
 # to disable email notification to users
 DISABLE_USER_EMAILING = getattr(settings, 'POSTMAN_DISABLE_USER_EMAILING', False)
@@ -67,20 +93,33 @@ def format_subject(subject):
     return subject if re.match(pattern, subject, re.IGNORECASE) else str.format(subject=subject)
 
 
-def email(subject_template, message_template, recipient_list, object, action, site):
+def email(subject_template, message_template_name, recipient_list, object, action, site):
     """Compose and send an email."""
     ctx_dict = {'site': site, 'object': object, 'action': action}
     subject = render_to_string(subject_template, ctx_dict)
     # Email subject *must not* contain newlines
     subject = ''.join(subject.splitlines())
-    message = render_to_string(message_template, ctx_dict)
+
+    # look for html and/or txt versions
+    try:
+        html_message = render_to_string(message_template_name + '.html', ctx_dict)
+    except TemplateDoesNotExist:
+        html_message = None
+    try:
+        message = render_to_string(message_template_name + '.txt', ctx_dict)
+        if message == '':
+            raise TemplateDoesNotExist("The .txt template can't be empty when the .html template doesn't exist")
+    except TemplateDoesNotExist as e:
+        if html_message is None:
+            raise e  # At least a .html or a .txt template must be usable
+        message = strip_tags(html_message)  # fallback
     # during the development phase, consider using the setting: EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True)
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True, html_message=html_message)
 
 
 def email_visitor(object, action, site):
     """Email a visitor."""
-    email('postman/email_visitor_subject.txt', 'postman/email_visitor.txt', [object.email], object, action, site)
+    email('postman/email_visitor_subject.txt', 'postman/email_visitor', [object.email], object, action, site)
 
 
 def notify_user(object, action, site):
@@ -99,4 +138,4 @@ def notify_user(object, action, site):
         notification.send(users=[user], label=label, extra_context={'pm_message': object, 'pm_action': action, 'pm_site': site})
     else:
         if not DISABLE_USER_EMAILING and user.email and user.is_active:
-            email('postman/email_user_subject.txt', 'postman/email_user.txt', [user.email], object, action, site)
+            email('postman/email_user_subject.txt', 'postman/email_user', [user.email], object, action, site)
