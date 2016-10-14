@@ -6,6 +6,16 @@ Parties should be notified of these events:
 * when a message is rejected (sender)
 * when a message or a reply is received (recipient)
 
+*New in version 3.4.0*
+With the default templates provided within the application, a text-only email is sent.
+If you want the email to be in HTML format:
+
+1. Create the .html version.
+#. Override the .txt version (otherwise the template provided by default applies) with either:
+
+    - a non empty content of your design.
+    - or an empty content, meaning by convention a fallback to the .html content with all tags stripped.
+
 .. _for_visitors:
 
 For visitors
@@ -13,7 +23,7 @@ For visitors
 An email is sent, using these templates:
 
 * :file:`postman/email_visitor_subject.txt` for the subject
-* :file:`postman/email_visitor.txt` for the body
+* :file:`postman/email_visitor.txt` and/or :file:`.html` for the body
 
 The available context variables are:
 
@@ -41,11 +51,12 @@ and so are available in the templates:
 
 * ``pm_message``: the Message instance
 * ``pm_action``: 'rejection' or 'acceptance'
+* ``pm_site``: the Site instance
 
 If no notifier application is used, an email is sent, using these templates:
 
 * :file:`postman/email_user_subject.txt` for the subject
-* :file:`postman/email_user.txt` for the body
+* :file:`postman/email_user.txt` and/or :file:`.html` for the body
 
 In that case, the information about context variables and templates is the same
 as in the :ref:`for_visitors` section above.

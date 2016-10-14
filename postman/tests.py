@@ -66,7 +66,7 @@ from .models import ORDER_BY_KEY, ORDER_BY_MAPPER, Message, PendingMessage,\
         STATUS_PENDING, STATUS_ACCEPTED, STATUS_REJECTED,\
         get_order_by, get_user_representation, get_user_name
 # because of reload()'s, do "from postman.utils import notification" just before needs
-from .utils import format_body, format_subject
+from .utils import format_body, format_subject, email
 
 
 class GenericTest(TestCase):
@@ -74,7 +74,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.3.2")
+        self.assertEqual(sys.modules['postman'].__version__, "3.4.0a1")
 
 
 class TransactionViewTest(TransactionTestCase):
@@ -1726,6 +1726,38 @@ class UtilsTest(BaseTest):
         self.assertEqual(format_subject("foo bar"), "Re: foo bar")
         self.assertEqual(format_subject("Re: foo bar"), "Re: foo bar")
         self.assertEqual(format_subject("rE: foo bar"), "rE: foo bar")
+
+    def check_email(self, message_template_name, recipient_list, object, action, site, parts=None):
+        mail.outbox = []
+        subject_template = 'postman/email_visitor_subject.txt'
+        message_template_name = 'postman_for_tests/' + message_template_name
+        if not parts:
+            self.assertRaises(TemplateDoesNotExist, email, subject_template, message_template_name, recipient_list, object, action, site)
+        else:
+            email(subject_template, message_template_name, recipient_list, object, action, site)
+            self.assertEqual(len(mail.outbox), 1)
+            msg = mail.outbox[0].message()
+            payload = msg.get_payload()
+            if isinstance(parts, tuple):
+                self.assertEqual(msg.is_multipart(), True)
+                for i, mimetype in ((0, 'text/plain'), (1, 'text/html')):
+                    part = payload[i]
+                    self.assertTupleEqual((part.get_content_type(), part.get_payload()), (mimetype, parts[i]))
+            else:
+                self.assertEqual(msg.is_multipart(), False)
+                self.assertEqual(payload, parts)
+
+    def test_email(self):
+        "Test email()."
+        m = self.c12()
+        recipient_list = ['recipient@domain.tld']
+        action = 'some_action'
+        site = Site.objects.get_current() if Site._meta.installed else None
+        self.check_email('nonexistent_template', recipient_list, m, action, site)
+        self.check_email('email_txt_only', recipient_list, m, action, site, 'Text only\n')
+        self.check_email('email_html_only', recipient_list, m, action, site, ('Html only\n', '<div>Html only</div>\n'))
+        self.check_email('email_html_and_empty_txt', recipient_list, m, action, site, ('Html and empty Text\n', '<div>Html and empty Text</div>\n'))
+        self.check_email('email_html_and_txt', recipient_list, m, action, site, ('Alternate Text\n', '<div>Html and Text</div>\n'))
 
     def test_get_order_by(self):
         "Test get_order_by()."
