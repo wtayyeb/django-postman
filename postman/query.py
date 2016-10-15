@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from types import MethodType
 
 from django import VERSION
+from django.db.models.sql.compiler import SQLCompiler
 from django.db.models.sql.query import Query
 from django.utils import six
 
@@ -37,7 +38,7 @@ class Proxy(object):
         return self._target(name)
 
 
-class CompilerProxy(Proxy):
+class CompilerProxy(Proxy, SQLCompiler):
     """
     A proxy to a compiler.
     """
