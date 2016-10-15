@@ -56,8 +56,8 @@ It has support for optional additional applications:
 * New message notification (default is `django-notification`_)
 * Asynchronous mailer (default is `django-mailer`_)
 
-.. _`django-notification`: http://github.com/jtauber/django-notification/
-.. _`django-mailer`: http://github.com/jtauber/django-mailer/
+.. _`django-notification`: https://github.com/pinax/django-notification/
+.. _`django-mailer`: https://github.com/pinax/django-mailer/
 
 Moderation
 ----------
