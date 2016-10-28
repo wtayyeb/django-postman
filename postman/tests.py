@@ -82,7 +82,8 @@ class TransactionViewTest(TransactionTestCase):
     Test some transactional behavior.
     Can't use Django TestCase class, because it has a special treament for commit/rollback to speed up the database resetting.
     """
-    urls = 'postman.urls_for_tests'
+    if VERSION < (1, 10):
+        urls = 'postman.urls_for_tests'
 
     def setUp(self):
         self.user1 = get_user_model().objects.create_user('foo', 'foo@domain.com', 'pass')
@@ -100,6 +101,8 @@ class TransactionViewTest(TransactionTestCase):
         self.assertTrue(self.client.login(username='foo', password='pass'))
         response = self.client.post(url, data)
         self.assertTrue(Message.objects.get())
+if VERSION >= (1, 10):
+    TransactionViewTest = override_settings(ROOT_URLCONF='postman.urls_for_tests')(TransactionViewTest)
 
 
 class BaseTest(TestCase):
