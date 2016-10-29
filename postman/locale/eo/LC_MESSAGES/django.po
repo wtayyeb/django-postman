@@ -1,7 +1,7 @@
 # Esperanto translation of django-postman.
 # Copyright (C) 2010 Patrick Samson
 # This file is distributed under the same license as the django-postman package.
-# 
+#
 # Translators:
 # Baptiste Darthenay <baptiste+transifex@darthenay.fr>, 2014
 # B E <steleto@gmail.com>, 2014
@@ -9,16 +9,23 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
-"Report-Msgid-Bugs-To: http://bitbucket.org/psam/django-postman/issues\n"
-"POT-Creation-Date: 2015-08-04 22:02+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-10-29 12:26+0200\n"
 "PO-Revision-Date: 2016-01-15 18:51+0000\n"
 "Last-Translator: Meiyer G <interdist@gmail.com>\n"
-"Language-Team: Esperanto (http://www.transifex.com/psam/django-postman/language/eo/)\n"
+"Language-Team: Esperanto (http://www.transifex.com/psam/django-postman/"
+"language/eo/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: eo\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Translators: keep consistency with the <option> parameter in url translations ; 'm' stands for 'messages'
+#: .\__init__.py:23
+msgctxt "postman_url"
+msgid "m"
+msgstr ""
 
 #: .\admin.py:30
 msgid "Sender and Recipient cannot be both undefined."
@@ -38,11 +45,14 @@ msgstr "La dato de la legado devas esti post la dato de la sendado."
 
 #: .\admin.py:53
 msgid "Deletion date by sender must be later than sending date."
-msgstr "La dato de la forviŝado de la sendanto devas esti post la dato de la sendado."
+msgstr ""
+"La dato de la forviŝado de la sendanto devas esti post la dato de la sendado."
 
 #: .\admin.py:58
 msgid "Deletion date by recipient must be later than sending date."
-msgstr "La dato de la forviŝado de la ricevanto devas esti post la dato de la sendado."
+msgstr ""
+"La dato de la forviŝado de la ricevanto devas esti post la dato de la "
+"sendado."
 
 #: .\admin.py:66
 msgid "Response date must be later than sending date."
@@ -58,13 +68,14 @@ msgstr "La dato de la respondo devas esti post la dato de la legado."
 
 #: .\admin.py:72
 msgid "Response date cannot be set without at least one reply."
-msgstr "La dato de la respondo ne povas esti agordita sen almenaŭ unu respondo."
+msgstr ""
+"La dato de la respondo ne povas esti agordita sen almenaŭ unu respondo."
 
 #: .\admin.py:74
 msgid "The message cannot be replied without being in a conversation."
 msgstr "La mesaĝo ne povas esti respondita sen esti en la babilado."
 
-#: .\admin.py:97 .\admin.py:178 .\templates\postman\view.html:5
+#: .\admin.py:97 .\admin.py:179 .\templates\postman\view.html:5
 msgid "Message"
 msgstr "Mesaĝo"
 
@@ -72,192 +83,196 @@ msgstr "Mesaĝo"
 msgid "Dates"
 msgstr "Datoj"
 
-#: .\admin.py:107 .\admin.py:182
+#: .\admin.py:107 .\admin.py:183
 msgid "Moderation"
 msgstr "Moderigado"
 
-#: .\fields.py:33
+#: .\fields.py:30
 msgid "Some usernames are unknown or no longer active: {users}."
 msgstr "Kelkaj uzantnomoj estas nekonataj aŭ ne plu aktivaj: {users}."
 
-#: .\fields.py:34
+#: .\fields.py:31
 msgid ""
 "Ensure this value has at most {limit_value} distinct items (it has "
 "{show_value})."
-msgstr "Certiĝu, ke tiu ĉi valoro havas maksimume {limit_value} malsamajn erojn (nun ĝi havas {show_value})."
+msgstr ""
+"Certiĝu, ke tiu ĉi valoro havas maksimume {limit_value} malsamajn erojn (nun "
+"ĝi havas {show_value})."
 
-#: .\fields.py:35
+#: .\fields.py:32
 msgid ""
 "Ensure this value has at least {limit_value} distinct items (it has "
 "{show_value})."
-msgstr "Certiĝu, ke tiu ĉi valoro havas minimume {limit_value} malsamajn erojn (nun ĝi havas {show_value})."
+msgstr ""
+"Certiĝu, ke tiu ĉi valoro havas minimume {limit_value} malsamajn erojn (nun "
+"ĝi havas {show_value})."
 
-#: .\fields.py:36
+#: .\fields.py:33
 msgid "Some usernames are rejected: {users}."
 msgstr "Kelkaj uzantnomoj estis malakceptitaj: {users}."
 
-#: .\fields.py:37 .\forms.py:72
+#: .\fields.py:34 .\forms.py:69
 msgid "{username}"
 msgstr "{username}"
 
-#: .\fields.py:38 .\forms.py:73
+#: .\fields.py:35 .\forms.py:70
 msgid "{username} ({reason})"
 msgstr "{username} ({reason})"
 
-#: .\forms.py:71
+#: .\forms.py:68
 msgid "Writing to some users is not possible: {users}."
 msgstr "Vi ne povas skribi al kelkaj uzantoj: {users}."
 
-#: .\forms.py:158 .\forms.py:171
+#: .\forms.py:155 .\forms.py:168
 msgid "Recipients"
 msgstr "Ricevantoj"
 
-#: .\forms.py:158 .\forms.py:171 .\templates\postman\base_folder.html:33
+#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:33
 #: .\templates\postman\reply.html:4
 msgid "Recipient"
 msgstr "Ricevanto"
 
-#: .\forms.py:170
+#: .\forms.py:167
 msgid "Email"
 msgstr "Retadreso"
 
-#: .\forms.py:187
+#: .\forms.py:184
 msgid "Undefined recipient."
 msgstr "Nedifinita ricevanto."
 
-#: .\forms.py:209
+#: .\forms.py:219
 msgid "Additional recipients"
 msgstr "Kromaj ricevantoj"
 
-#: .\forms.py:209
+#: .\forms.py:219
 msgid "Additional recipient"
 msgstr "Kroma ricevanto"
 
-#: .\management\__init__.py:22
+#: .\management\__init__.py:20
 msgid "Message Rejected"
 msgstr "Mesaĝo Malakceptita"
 
-#: .\management\__init__.py:22
+#: .\management\__init__.py:20
 msgid "Your message has been rejected"
 msgstr "Via mesaĝo estis malakceptita"
 
-#: .\management\__init__.py:23
+#: .\management\__init__.py:21
 msgid "Message Received"
 msgstr "Mesaĝo Ricevita"
 
-#: .\management\__init__.py:23
+#: .\management\__init__.py:21
 msgid "You have received a message"
 msgstr "Vi ricevis mesaĝon"
 
-#: .\management\__init__.py:24
+#: .\management\__init__.py:22
 msgid "Reply Received"
 msgstr "Respondo Ricevita"
 
-#: .\management\__init__.py:24
+#: .\management\__init__.py:22
 msgid "You have received a reply"
 msgstr "Vi ricevis respondon"
 
-#: .\models.py:35
+#: .\models.py:28
 msgid "Pending"
 msgstr "Pritraktota"
 
-#: .\models.py:36
+#: .\models.py:29
 msgid "Accepted"
 msgstr "Akceptita"
 
-#: .\models.py:37 .\templates\postman\view.html:13
+#: .\models.py:30 .\templates\postman\view.html:13
 msgid "Rejected"
 msgstr "Malakceptita"
 
-#: .\models.py:271
+#: .\models.py:261
 msgid "subject"
 msgstr "temo"
 
-#: .\models.py:272
+#: .\models.py:262
 msgid "body"
 msgstr "korpo"
 
-#: .\models.py:273 .\models.py:355
+#: .\models.py:263 .\models.py:346
 msgid "sender"
 msgstr "sendanto"
 
-#: .\models.py:274 .\models.py:379
+#: .\models.py:264 .\models.py:370
 msgid "recipient"
 msgstr "ricevanto"
 
-#: .\models.py:275
+#: .\models.py:265
 msgid "visitor"
 msgstr "vizitanto"
 
-#: .\models.py:276
+#: .\models.py:266
 msgid "parent message"
 msgstr "patra mesaĝo"
 
-#: .\models.py:277
+#: .\models.py:267
 msgid "root message"
 msgstr "radika mesaĝo"
 
-#: .\models.py:278
+#: .\models.py:268
 msgid "sent at"
 msgstr "sendita je"
 
-#: .\models.py:279
+#: .\models.py:269
 msgid "read at"
 msgstr "legita je"
 
-#: .\models.py:280
+#: .\models.py:270
 msgid "replied at"
 msgstr "respondita je"
 
-#: .\models.py:281
+#: .\models.py:271
 msgid "archived by sender"
 msgstr "arkivita de la sendanto"
 
-#: .\models.py:282
+#: .\models.py:272
 msgid "archived by recipient"
 msgstr "arkivita de la ricevanto"
 
-#: .\models.py:283
+#: .\models.py:273
 msgid "deleted by sender at"
 msgstr "forviŝita de la sendanto je"
 
-#: .\models.py:284
+#: .\models.py:274
 msgid "deleted by recipient at"
 msgstr "forviŝita de la ricevanto je"
 
-#: .\models.py:286
+#: .\models.py:276
 msgid "status"
 msgstr "stato"
 
-#: .\models.py:288
+#: .\models.py:278
 msgid "moderator"
 msgstr "moderiganto"
 
-#: .\models.py:289
+#: .\models.py:279
 msgid "moderated at"
 msgstr "moderigita je"
 
-#: .\models.py:290
+#: .\models.py:280
 msgid "rejection reason"
 msgstr "kialo de la malakcepto"
 
-#: .\models.py:295
+#: .\models.py:285
 msgid "message"
 msgstr "mesaĝo"
 
-#: .\models.py:296
+#: .\models.py:286
 msgid "messages"
 msgstr "mesaĝoj"
 
-#: .\models.py:407
+#: .\models.py:398
 msgid "Undefined sender."
 msgstr "Nedifinita sendanto."
 
-#: .\models.py:555
+#: .\models.py:546
 msgid "pending message"
 msgstr "pritraktata mesaĝo"
 
-#: .\models.py:556
+#: .\models.py:547
 msgid "pending messages"
 msgstr "pritraktataj mesaĝoj"
 
@@ -283,29 +298,31 @@ msgstr "Arkivitaj mesaĝoj"
 msgid ""
 "Messages in this folder will never be removed. You can use this folder for "
 "long term storage."
-msgstr "Mesaĝoj en tiu ĉi dosierujo neniam estos forigitaj. Vi povas uzi tiun ĉi dosierujon por longtempa konservado."
+msgstr ""
+"Mesaĝoj en tiu ĉi dosierujo neniam estos forigitaj. Vi povas uzi tiun ĉi "
+"dosierujon por longtempa konservado."
 
 #: .\templates\postman\base.html:3
 msgid "Messaging"
 msgstr "Mesaĝilo"
 
-#: .\templates\postman\base.html:12
+#: .\templates\postman\base.html:9
 msgid "Inbox"
 msgstr "Poŝtkesto"
 
-#: .\templates\postman\base.html:13 .\templates\postman\sent.html:3
+#: .\templates\postman\base.html:10 .\templates\postman\sent.html:3
 msgid "Sent Messages"
 msgstr "Senditaj mesaĝoj"
 
-#: .\templates\postman\base.html:14 .\templates\postman\write.html:3
+#: .\templates\postman\base.html:11 .\templates\postman\write.html:3
 msgid "Write"
 msgstr "Skribu"
 
-#: .\templates\postman\base.html:15
+#: .\templates\postman\base.html:12
 msgid "Archives"
 msgstr "Arkivo"
 
-#: .\templates\postman\base.html:16
+#: .\templates\postman\base.html:13
 msgid "Trash"
 msgstr "Rubujo"
 
@@ -357,7 +374,7 @@ msgstr "G:i,M j,Y-n-j"
 msgid "No messages."
 msgstr "Ne estas mesaĝoj."
 
-#: .\templates\postman\base_write.html:33
+#: .\templates\postman\base_write.html:18
 msgid "Send"
 msgstr "Sendu"
 
@@ -416,7 +433,9 @@ msgstr "La administranto de la retpaĝo"
 msgid ""
 "Note: This message is issued by an automated system.\n"
 "Do not reply, this would not be taken into account."
-msgstr "Noto: La mesaĝo estas parto de aŭtomata sistemo.\nBonvolu ne respondi al ĝi, via mesaĝo ne estos ricevita."
+msgstr ""
+"Noto: La mesaĝo estas parto de aŭtomata sistemo.\n"
+"Bonvolu ne respondi al ĝi, via mesaĝo ne estos ricevita."
 
 #: .\templates\postman\email_user_subject.txt:1
 #: .\templates\postman\email_visitor_subject.txt:1
@@ -465,7 +484,9 @@ msgstr "Forviŝitaj mesaĝoj"
 msgid ""
 "Messages in this folder can be removed from time to time. For long term "
 "storage, use instead the archive folder."
-msgstr "Mesaĝoj en tiu ĉi dosierujo povas esti forigitaj de tempo al tempo. Por longtempa konservado prefere uzu la arkivon."
+msgstr ""
+"Mesaĝoj en tiu ĉi dosierujo povas esti forigitaj de tempo al tempo. Por "
+"longtempa konservado prefere uzu la arkivon."
 
 #: .\templates\postman\view.html:5
 msgid "Conversation"
@@ -479,46 +500,110 @@ msgstr ":"
 msgid "Back"
 msgstr "Reen"
 
-#: .\templatetags\postman_tags.py:50
+#: .\templatetags\postman_tags.py:47
 msgid "<me>"
 msgstr "mi"
 
-#: .\utils.py:39
+#. Translators: keep consistency of the <option> parameter with the translation for 'm'
+#: .\urls.py:106
+msgctxt "postman_url"
+msgid "^inbox/(?:(?P<option>m)/)?$"
+msgstr ""
+
+#. Translators: keep consistency of the <option> parameter with the translation for 'm'
+#: .\urls.py:108
+msgctxt "postman_url"
+msgid "^sent/(?:(?P<option>m)/)?$"
+msgstr ""
+
+#. Translators: keep consistency of the <option> parameter with the translation for 'm'
+#: .\urls.py:110
+msgctxt "postman_url"
+msgid "^archives/(?:(?P<option>m)/)?$"
+msgstr ""
+
+#. Translators: keep consistency of the <option> parameter with the translation for 'm'
+#: .\urls.py:112
+msgctxt "postman_url"
+msgid "^trash/(?:(?P<option>m)/)?$"
+msgstr ""
+
+#: .\urls.py:113
+msgctxt "postman_url"
+msgid "^write/(?:(?P<recipients>[^/#]+)/)?$"
+msgstr ""
+
+#: .\urls.py:114
+msgctxt "postman_url"
+msgid "^reply/(?P<message_id>[\\d]+)/$"
+msgstr ""
+
+#: .\urls.py:115
+msgctxt "postman_url"
+msgid "^view/(?P<message_id>[\\d]+)/$"
+msgstr ""
+
+#. Translators: 't' stands for 'thread'
+#: .\urls.py:117
+msgctxt "postman_url"
+msgid "^view/t/(?P<thread_id>[\\d]+)/$"
+msgstr ""
+
+#: .\urls.py:118
+msgctxt "postman_url"
+msgid "^archive/$"
+msgstr ""
+
+#: .\urls.py:119
+msgctxt "postman_url"
+msgid "^delete/$"
+msgstr ""
+
+#: .\urls.py:120
+msgctxt "postman_url"
+msgid "^undelete/$"
+msgstr ""
+
+#: .\utils.py:65
 msgid "> "
 msgstr "> "
 
-#: .\utils.py:55
+#: .\utils.py:81
 msgid ""
 "\n"
 "\n"
 "{sender} wrote:\n"
 "{body}\n"
-msgstr "\n\n{sender} skribis:\n{body}\n"
+msgstr ""
+"\n"
+"\n"
+"{sender} skribis:\n"
+"{body}\n"
 
-#: .\utils.py:65
+#: .\utils.py:91
 msgid "Re: {subject}"
 msgstr "Re: {subject}"
 
-#: .\views.py:186
+#: .\views.py:194
 msgid "Message successfully sent."
 msgstr "Mesaĝo sukcese sendita."
 
-#: .\views.py:188
+#: .\views.py:196
 msgid "Message rejected for at least one recipient."
 msgstr "Mesaĝo malakceptita por almenaŭ unu ricevanto."
 
-#: .\views.py:406
+#: .\views.py:414
 msgid "Select at least one object."
 msgstr "Elektu almenaŭ unu objekton."
 
-#: .\views.py:413
+#: .\views.py:421
 msgid "Messages or conversations successfully archived."
 msgstr "Mesaĝoj aŭ babiladoj sukcese arkivitaj."
 
-#: .\views.py:420
+#: .\views.py:428
 msgid "Messages or conversations successfully deleted."
 msgstr "Mesaĝoj aŭ babiladoj sukcese forviŝitaj."
 
-#: .\views.py:427
+#: .\views.py:435
 msgid "Messages or conversations successfully recovered."
 msgstr "Mesaĝoj aŭ babiladoj sukcese restarigitaj."

@@ -10,9 +10,12 @@ from django.conf.urls import include, url
 from django.contrib.auth.views import login
 from django.core.urlresolvers import reverse_lazy
 from django.forms import ValidationError
+if getattr(settings, 'POSTMAN_I18N_URLS', False):
+    from django.utils.translation import pgettext_lazy
+else:
+    def pgettext_lazy(c, m): return m
 from django.views.generic.base import RedirectView
 
-from . import OPTIONS
 from .views import (InboxView, SentView, ArchivesView, TrashView,
         WriteView, ReplyView, MessageView, ConversationView,
         ArchiveView, DeleteView, UndeleteView)
@@ -61,17 +64,17 @@ def format_body(sender, body):
 
 postman_patterns = [
     # Basic set
-    url(r'^inbox/(?:(?P<option>'+OPTIONS+')/)?$', InboxView.as_view(), name='inbox'),
-    url(r'^sent/(?:(?P<option>'+OPTIONS+')/)?$', SentView.as_view(), name='sent'),
-    url(r'^archives/(?:(?P<option>'+OPTIONS+')/)?$', ArchivesView.as_view(), name='archives'),
-    url(r'^trash/(?:(?P<option>'+OPTIONS+')/)?$', TrashView.as_view(), name='trash'),
-    url(r'^write/(?:(?P<recipients>[^/#]+)/)?$', WriteView.as_view(), name='write'),
-    url(r'^reply/(?P<message_id>[\d]+)/$', ReplyView.as_view(), name='reply'),
-    url(r'^view/(?P<message_id>[\d]+)/$', MessageView.as_view(), name='view'),
-    url(r'^view/t/(?P<thread_id>[\d]+)/$', ConversationView.as_view(), name='view_conversation'),
-    url(r'^archive/$', ArchiveView.as_view(), name='archive'),
-    url(r'^delete/$', DeleteView.as_view(), name='delete'),
-    url(r'^undelete/$', UndeleteView.as_view(), name='undelete'),
+    url(pgettext_lazy('postman_url', r'^inbox/(?:(?P<option>m)/)?$'), InboxView.as_view(), name='inbox'),
+    url(pgettext_lazy('postman_url', r'^sent/(?:(?P<option>m)/)?$'), SentView.as_view(), name='sent'),
+    url(pgettext_lazy('postman_url', r'^archives/(?:(?P<option>m)/)?$'), ArchivesView.as_view(), name='archives'),
+    url(pgettext_lazy('postman_url', r'^trash/(?:(?P<option>m)/)?$'), TrashView.as_view(), name='trash'),
+    url(pgettext_lazy('postman_url', r'^write/(?:(?P<recipients>[^/#]+)/)?$'), WriteView.as_view(), name='write'),
+    url(pgettext_lazy('postman_url', r'^reply/(?P<message_id>[\d]+)/$'), ReplyView.as_view(), name='reply'),
+    url(pgettext_lazy('postman_url', r'^view/(?P<message_id>[\d]+)/$'), MessageView.as_view(), name='view'),
+    url(pgettext_lazy('postman_url', r'^view/t/(?P<thread_id>[\d]+)/$'), ConversationView.as_view(), name='view_conversation'),
+    url(pgettext_lazy('postman_url', r'^archive/$'), ArchiveView.as_view(), name='archive'),
+    url(pgettext_lazy('postman_url', r'^delete/$'), DeleteView.as_view(), name='delete'),
+    url(pgettext_lazy('postman_url', r'^undelete/$'), UndeleteView.as_view(), name='undelete'),
     # Django 1.9 "HTTP redirects no longer forced to absolute URIs"
     # and test.Client doesn't support relative-path reference, such as url='inbox/' ; ticket/26428
     url(r'^$', RedirectView.as_view(
@@ -118,10 +121,10 @@ postman_patterns = [
     url(r'^write_ac/(?:(?P<recipients>[^/#]+)/)?$', WriteView.as_view(autocomplete_channels=('postman_multiple_as1-1', None)), name='write_auto_complete'),
     url(r'^reply_ac/(?P<message_id>[\d]+)/$', ReplyView.as_view(autocomplete_channel='postman_multiple_as1-1'), name='reply_auto_complete'),
     # 'template_name'
-    url(r'^inbox_template/(?:(?P<option>'+OPTIONS+')/)?$', InboxView.as_view(template_name='postman/fake.html'), name='inbox_template'),
-    url(r'^sent_template/(?:(?P<option>'+OPTIONS+')/)?$', SentView.as_view(template_name='postman/fake.html'), name='sent_template'),
-    url(r'^archives_template/(?:(?P<option>'+OPTIONS+')/)?$', ArchivesView.as_view(template_name='postman/fake.html'), name='archives_template'),
-    url(r'^trash_template/(?:(?P<option>'+OPTIONS+')/)?$', TrashView.as_view(template_name='postman/fake.html'), name='trash_template'),
+    url(pgettext_lazy('postman_url', r'^inbox_template/(?:(?P<option>m)/)?$'), InboxView.as_view(template_name='postman/fake.html'), name='inbox_template'),
+    url(pgettext_lazy('postman_url', r'^sent_template/(?:(?P<option>m)/)?$'), SentView.as_view(template_name='postman/fake.html'), name='sent_template'),
+    url(pgettext_lazy('postman_url', r'^archives_template/(?:(?P<option>m)/)?$'), ArchivesView.as_view(template_name='postman/fake.html'), name='archives_template'),
+    url(pgettext_lazy('postman_url', r'^trash_template/(?:(?P<option>m)/)?$'), TrashView.as_view(template_name='postman/fake.html'), name='trash_template'),
     url(r'^write_template/(?:(?P<recipients>[^/#]+)/)?$', WriteView.as_view(template_name='postman/fake.html'), name='write_template'),
     url(r'^reply_template/(?P<message_id>[\d]+)/$', ReplyView.as_view(template_name='postman/fake.html'), name='reply_template'),
     url(r'^view_template/(?P<message_id>[\d]+)/$', MessageView.as_view(template_name='postman/fake.html'), name='view_template'),

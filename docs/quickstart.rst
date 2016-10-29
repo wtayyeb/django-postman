@@ -58,6 +58,14 @@ of your project.
 
 You may specify some additional configuration options in your :file:`settings.py`:
 
+``POSTMAN_I18N_URLS``
+    *New in version 3.5.0.*
+
+    Set it to True if you want the internationalization of URL patterns.
+    Translations are provided by the language files.
+
+    *Defaults to*: False.
+
 ``POSTMAN_DISALLOW_ANONYMOUS``
     Set it to True if you do not allow visitors to write to users.
     That way, messaging is restricted to a User-to-User exchange.
@@ -234,12 +242,14 @@ Examples
         # 'notification'
         # 'mailer'
     )
+    # POSTMAN_I18N_URLS = True  # default is False
     # POSTMAN_DISALLOW_ANONYMOUS = True  # default is False
     # POSTMAN_DISALLOW_MULTIRECIPIENTS = True  # default is False
     # POSTMAN_DISALLOW_COPIES_ON_REPLY = True  # default is False
     # POSTMAN_DISABLE_USER_EMAILING = True  # default is False
     # POSTMAN_AUTO_MODERATE_AS = True  # default is None
     # POSTMAN_SHOW_USER_AS = 'get_full_name'  # default is None
+	# POSTMAN_NAME_USER_AS = 'last_name'  # default is None
     # POSTMAN_QUICKREPLY_QUOTE_BODY = True  # default is False
     # POSTMAN_NOTIFIER_APP = None  # default is 'notification'
     # POSTMAN_MAILER_APP = None  # default is 'mailer'
