@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-29 12:26+0200\n"
+"POT-Creation-Date: 2016-11-01 11:05+0100\n"
 "PO-Revision-Date: 2012-08-09 12:39+0000\n"
 "Last-Translator: Vasiliy <vasiliy.korchagin@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -122,7 +122,7 @@ msgstr "Нельзя написать некоторым пользовател�
 msgid "Recipients"
 msgstr "Получатели"
 
-#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:33
+#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:35
 #: .\templates\postman\reply.html:4
 msgid "Recipient"
 msgstr "Получатель"
@@ -346,27 +346,35 @@ msgstr "Архивировать"
 msgid "Undelete"
 msgstr "Восстановить"
 
-#: .\templates\postman\base_folder.html:31
+#: .\templates\postman\base_folder.html:27
+msgid "Mark as read"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:28
+msgid "Mark as unread"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:33
 msgid "Action"
 msgstr "Действий"
 
-#: .\templates\postman\base_folder.html:32
+#: .\templates\postman\base_folder.html:34
 msgid "Sender"
 msgstr "Отправителя"
 
-#: .\templates\postman\base_folder.html:34
+#: .\templates\postman\base_folder.html:36
 msgid "Subject"
 msgstr "Тема"
 
-#: .\templates\postman\base_folder.html:35
+#: .\templates\postman\base_folder.html:37
 msgid "Date"
 msgstr "Дата"
 
-#: .\templates\postman\base_folder.html:50
+#: .\templates\postman\base_folder.html:52
 msgid "g:i A,M j,n/j/y"
 msgstr "g:i A,M j,n/j/y"
 
-#: .\templates\postman\base_folder.html:57
+#: .\templates\postman\base_folder.html:59
 msgid "No messages."
 msgstr "Сообщений нет."
 
@@ -469,7 +477,7 @@ msgstr "Получено"
 msgid "Reply"
 msgstr "Ответить"
 
-#: .\templates\postman\sent.html:6
+#: .\templates\postman\sent.html:8
 msgid "Sent"
 msgstr "Отправлено"
 
@@ -561,6 +569,16 @@ msgctxt "postman_url"
 msgid "^undelete/$"
 msgstr ""
 
+#: .\urls.py:121
+msgctxt "postman_url"
+msgid "^mark-read/$"
+msgstr ""
+
+#: .\urls.py:122
+msgctxt "postman_url"
+msgid "^mark-unread/$"
+msgstr ""
+
 #: .\utils.py:65
 msgid "> "
 msgstr "> "
@@ -593,14 +611,22 @@ msgstr "Сообщение отклонено по крайней мере дл�
 msgid "Select at least one object."
 msgstr "Выберите по крайней мере один объект."
 
-#: .\views.py:421
+#: .\views.py:427
 msgid "Messages or conversations successfully archived."
 msgstr "Сообщения или беседы успешно заархивированы."
 
-#: .\views.py:428
+#: .\views.py:434
 msgid "Messages or conversations successfully deleted."
 msgstr "Сообщения или беседы успешно удалены."
 
-#: .\views.py:435
+#: .\views.py:441
 msgid "Messages or conversations successfully recovered."
 msgstr "Сообщения или беседы успешно восстановлены."
+
+#: .\views.py:452
+msgid "Messages or conversations successfully marked as read."
+msgstr ""
+
+#: .\views.py:458
+msgid "Messages or conversations successfully marked as unread."
+msgstr ""

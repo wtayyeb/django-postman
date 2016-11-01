@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-29 12:26+0200\n"
+"POT-Creation-Date: 2016-11-01 11:05+0100\n"
 "PO-Revision-Date: 2012-11-19 10:30+0000\n"
 "Last-Translator: Arash Fazeli <a.fazeli@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,7 +121,7 @@ msgstr "نوشتن برای برخی کاربران امکان پذیر نیست
 msgid "Recipients"
 msgstr "گیرندگان"
 
-#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:33
+#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:35
 #: .\templates\postman\reply.html:4
 msgid "Recipient"
 msgstr "گیرنده"
@@ -343,27 +343,35 @@ msgstr "آرشیو"
 msgid "Undelete"
 msgstr "برگرداندن"
 
-#: .\templates\postman\base_folder.html:31
+#: .\templates\postman\base_folder.html:27
+msgid "Mark as read"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:28
+msgid "Mark as unread"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:33
 msgid "Action"
 msgstr "حرکت"
 
-#: .\templates\postman\base_folder.html:32
+#: .\templates\postman\base_folder.html:34
 msgid "Sender"
 msgstr "ارسال کننده"
 
-#: .\templates\postman\base_folder.html:34
+#: .\templates\postman\base_folder.html:36
 msgid "Subject"
 msgstr "موضوع"
 
-#: .\templates\postman\base_folder.html:35
+#: .\templates\postman\base_folder.html:37
 msgid "Date"
 msgstr "تاریخ"
 
-#: .\templates\postman\base_folder.html:50
+#: .\templates\postman\base_folder.html:52
 msgid "g:i A,M j,n/j/y"
 msgstr "g:i A,M j,n/j/y"
 
-#: .\templates\postman\base_folder.html:57
+#: .\templates\postman\base_folder.html:59
 msgid "No messages."
 msgstr "بودن پیام."
 
@@ -466,7 +474,7 @@ msgstr "دریافت شده"
 msgid "Reply"
 msgstr "پاسخگویی"
 
-#: .\templates\postman\sent.html:6
+#: .\templates\postman\sent.html:8
 msgid "Sent"
 msgstr "ارسال"
 
@@ -558,6 +566,16 @@ msgctxt "postman_url"
 msgid "^undelete/$"
 msgstr ""
 
+#: .\urls.py:121
+msgctxt "postman_url"
+msgid "^mark-read/$"
+msgstr ""
+
+#: .\urls.py:122
+msgctxt "postman_url"
+msgid "^mark-unread/$"
+msgstr ""
+
 #: .\utils.py:65
 msgid "> "
 msgstr " <"
@@ -590,14 +608,22 @@ msgstr "پیام رد شد حداقل برای یک گیرنده."
 msgid "Select at least one object."
 msgstr "حداقل یکی انتخاب کنید."
 
-#: .\views.py:421
+#: .\views.py:427
 msgid "Messages or conversations successfully archived."
 msgstr "پیام یا بحث با موفقیت بایگانی شد."
 
-#: .\views.py:428
+#: .\views.py:434
 msgid "Messages or conversations successfully deleted."
 msgstr "پیام یا بحث با موفقیت حذف شد."
 
-#: .\views.py:435
+#: .\views.py:441
 msgid "Messages or conversations successfully recovered."
 msgstr "پیام یا بحث با موفقیت بازگردانی شد."
+
+#: .\views.py:452
+msgid "Messages or conversations successfully marked as read."
+msgstr ""
+
+#: .\views.py:458
+msgid "Messages or conversations successfully marked as unread."
+msgstr ""

@@ -330,7 +330,10 @@ class DisplayMixin(NamespaceMixin, object):
         self.msgs = Message.objects.thread(user, self.filter)
         if not self.msgs:
             raise Http404
-        Message.objects.set_read(user, self.filter)
+        for m in self.msgs:
+            if m.recipient == user and m.is_accepted() and m.read_at is None:
+                Message.objects.set_read(user, self.filter)
+                break
         return super(DisplayMixin, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -404,10 +407,7 @@ class UpdateMessageMixin(object):
         if pks or tpks:
             user = request.user
             filter = Q(pk__in=pks) | Q(thread__in=tpks)
-            recipient_rows = Message.objects.as_recipient(user, filter).update(**{'recipient_{0}'.format(self.field_bit): self.field_value})
-            sender_rows = Message.objects.as_sender(user, filter).update(**{'sender_{0}'.format(self.field_bit): self.field_value})
-            if not (recipient_rows or sender_rows):
-                raise Http404  # abnormal enough, like forged ids
+            self._action(user, filter)
             messages.success(request, self.success_msg, fail_silently=True)
             return redirect(request.GET.get('next') or self.success_url or next_url)
         else:
@@ -415,21 +415,56 @@ class UpdateMessageMixin(object):
             return redirect(next_url)
 
 
-class ArchiveView(UpdateMessageMixin, View):
+class UpdateDualMixin(UpdateMessageMixin):
+    def _action(self, user, filter):
+        (criteria_key, criteria_val) = ('', not(self.field_value)) if isinstance(self.field_value, bool)\
+                else ('__isnull', bool(self.field_value))
+        recipient_rows = Message.objects.as_recipient(user, filter)\
+                .filter(**{'recipient_{0}{1}'.format(self.field_bit, criteria_key): criteria_val})\
+                .update(**{'recipient_{0}'.format(self.field_bit): self.field_value})
+        sender_rows = Message.objects.as_sender(user, filter)\
+                .filter(**{'sender_{0}{1}'.format(self.field_bit, criteria_key): criteria_val})\
+                .update(**{'sender_{0}'.format(self.field_bit): self.field_value})
+        if not (recipient_rows or sender_rows):
+            raise Http404  # abnormal enough, like forged ids
+
+
+class ArchiveView(UpdateDualMixin, View):
     """Mark messages/conversations as archived."""
     field_bit = 'archived'
     success_msg = ugettext_lazy("Messages or conversations successfully archived.")
     field_value = True
 
 
-class DeleteView(UpdateMessageMixin, View):
+class DeleteView(UpdateDualMixin, View):
     """Mark messages/conversations as deleted."""
     field_bit = 'deleted_at'
     success_msg = ugettext_lazy("Messages or conversations successfully deleted.")
     field_value = now()
 
 
-class UndeleteView(UpdateMessageMixin, View):
+class UndeleteView(UpdateDualMixin, View):
     """Revert messages/conversations from marked as deleted."""
     field_bit = 'deleted_at'
     success_msg = ugettext_lazy("Messages or conversations successfully recovered.")
+
+
+class UpdateRecipientMixin(UpdateMessageMixin):
+    def _action(self, user, filter):
+        recipient_rows = Message.objects.as_recipient(user, filter)\
+                .filter(**{'{0}__isnull'.format(self.field_bit): bool(self.field_value)})\
+                .update(**{self.field_bit: self.field_value})
+        # an empty set cannot be estimated as an error, it may be just a badly chosen selection
+
+
+class MarkReadView(UpdateRecipientMixin, View):
+    """Mark messages/conversations as read."""
+    field_bit = 'read_at'
+    success_msg = ugettext_lazy("Messages or conversations successfully marked as read.")
+    field_value = now()
+
+
+class MarkUnreadView(UpdateRecipientMixin, View):
+    """Revert messages/conversations from marked as read."""
+    field_bit = 'read_at'
+    success_msg = ugettext_lazy("Messages or conversations successfully marked as unread.")
