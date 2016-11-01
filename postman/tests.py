@@ -68,6 +68,10 @@ from .models import ORDER_BY_KEY, ORDER_BY_MAPPER, Message, PendingMessage,\
 # because of reload()'s, do "from postman.utils import notification" just before needs
 from .utils import format_body, format_subject, email
 
+# added for 1.8, for the client side, to supersede the default language set as soon as the creation of auth's permissions,
+# initiated via a post_migrate signal.
+activate('en')
+
 
 class GenericTest(TestCase):
     """
@@ -86,6 +90,7 @@ class TransactionViewTest(TransactionTestCase):
         urls = 'postman.urls_for_tests'
 
     def setUp(self):
+        settings.LANGUAGE_CODE = 'en'  # do not bother about translation ; needed for the server side
         self.user1 = get_user_model().objects.create_user('foo', 'foo@domain.com', 'pass')
         self.user2 = get_user_model().objects.create_user('bar', 'bar@domain.com', 'pass')
         for a in (
@@ -113,11 +118,7 @@ class BaseTest(TestCase):
         urls = 'postman.urls_for_tests'
 
     def setUp(self):
-        deactivate()  # necessary for 1.4 to consider a new settings.LANGUAGE_CODE; 1.3 is fine with or without
         settings.LANGUAGE_CODE = 'en'  # do not bother about translation ; needed for the server side
-        # added for 1.8, for the client side, to supersede the default language set as soon as the creation of auth's permissions,
-        # initiated via a post_migrate signal.
-        activate('en')
         for a in (
             'POSTMAN_DISALLOW_ANONYMOUS',
             'POSTMAN_DISALLOW_MULTIRECIPIENTS',
@@ -806,9 +807,18 @@ class ViewTest(BaseTest):
 
     def check_update(self, view_name, success_msg, field_bit, pk, field_value=None):
         "Check permission, redirection, field updates, invalid cases."
+        #       user1       user2         user3
+        # -----------       -----------   -----------  read repl
+        # arch del             arch del      arch del
+        #       1    ------>
+        #       1    <------
+        #       1    ------>
+        #            -------------------->
+        # 1: initially set for the undelete test
         url = reverse(view_name)
         url_with_success_url = reverse(view_name + '_with_success_url_to_archives')
         data = {'pks': (str(pk), str(pk+1), str(pk+2))}
+        m1 = Message.objects.get(pk=pk)  # keep an original copy
         # anonymous
         response = self.client.post(url, data)
         self.assertRedirects(response, "{0}?{1}={2}".format(settings.LOGIN_URL, REDIRECT_FIELD_NAME, url))
@@ -816,7 +826,7 @@ class ViewTest(BaseTest):
         self.assertTrue(self.client.login(username='foo', password='pass'))
         # default redirect is to the requestor page
         redirect_url = reverse('postman:sent')
-        response = self.client.post(url, data, HTTP_REFERER=redirect_url, follow=True)  # 'follow' to access messages
+        response = self.client.post(url, data, HTTP_REFERER=redirect_url, follow=True)  # 'follow' to access contrib messages
         self.assertRedirects(response, redirect_url)
         self.check_contrib_messages(response, success_msg)
         sender_kw = 'sender_{0}'.format(field_bit)
@@ -826,12 +836,15 @@ class ViewTest(BaseTest):
         self.check_status(Message.objects.get(pk=pk+2), status=STATUS_ACCEPTED, **{sender_kw: field_value})
         self.check_status(Message.objects.get(pk=pk+3), status=STATUS_ACCEPTED)
         # fallback redirect is to inbox
-        response = self.client.post(url, data)  # doesn't hurt if already archived|deleted|undeleted
+        m1.save()  # restoring one message is enough to avoid the error when all are archived|deleted|undeleted
+        response = self.client.post(url, data)
         self.assertRedirects(response, reverse('postman:inbox'))
         # redirect url may be superseded
+        m1.save()
         response = self.client.post(url_with_success_url, data, HTTP_REFERER=redirect_url)
         self.assertRedirects(response, reverse('postman:archives'))
         # query string has highest precedence
+        m1.save()
         response = self.client.post(url_with_success_url + '?next=' + redirect_url, data, HTTP_REFERER='does not matter')
         self.assertRedirects(response, redirect_url)
         # missing payload
@@ -849,6 +862,12 @@ class ViewTest(BaseTest):
 
     def check_update_conversation(self, view_name, root_msg, field_bit, field_value=None):
         "Check redirection, field updates, invalid cases."
+        #       user1       user2
+        # -----------       -----------  read repl
+        # arch del             arch del
+        #       1    ------>|             x    x
+        #       1    <------|
+        # 1: initially set for the undelete test
         url = reverse(view_name)
         pk = root_msg.pk
         data = {'tpks': str(pk)}
@@ -919,6 +938,121 @@ class ViewTest(BaseTest):
         m2 = self.c21(parent=m1, thread=m1.thread, recipient_deleted_at=now())
         m1.replied_at = m2.sent_at; m1.save()
         self.check_update_conversation('postman:undelete', m1, 'deleted_at')
+
+    def check_read(self, view_name, success_msg, pk, field_value=True):
+        "Check permission, redirection, field updates, invalid cases."
+        #       user1       user2
+        # -----------       -----------  read
+        #            <------              1
+        #            ------>
+        #            <------              1
+        #            <------
+        # 1: initially set for the unread test
+        url = reverse(view_name)
+        data = {'pks': (str(pk), str(pk+1), str(pk+2))}
+        # anonymous ; various redirects ; are already tested with check_update()
+        # not yours ; success but no changes
+        self.assertTrue(self.client.login(username='baz', password='pass'))
+        response = self.client.post(url, data, follow=True)
+        self.assertRedirects(response, reverse('postman:inbox'))
+        self.check_contrib_messages(response, success_msg)
+        self.check_status(Message.objects.get(pk=pk),   status=STATUS_ACCEPTED, is_new=not field_value)
+        self.check_status(Message.objects.get(pk=pk+1), status=STATUS_ACCEPTED)
+        self.check_status(Message.objects.get(pk=pk+2), status=STATUS_ACCEPTED, is_new=not field_value)
+        self.check_status(Message.objects.get(pk=pk+3), status=STATUS_ACCEPTED)
+
+        self.assertTrue(self.client.login(username='foo', password='pass'))
+        response = self.client.post(url, data, follow=True)
+        self.assertRedirects(response, reverse('postman:inbox'))
+        self.check_contrib_messages(response, success_msg)
+        self.check_status(Message.objects.get(pk=pk),   status=STATUS_ACCEPTED, is_new=field_value)
+        self.check_status(Message.objects.get(pk=pk+1), status=STATUS_ACCEPTED)  # unchanged
+        self.check_status(Message.objects.get(pk=pk+2), status=STATUS_ACCEPTED, is_new=field_value)
+        self.check_status(Message.objects.get(pk=pk+3), status=STATUS_ACCEPTED)  # unchanged
+        # missing payload
+        response = self.client.post(url, follow=True)
+        self.assertRedirects(response, reverse('postman:inbox'))
+        self.check_contrib_messages(response, 'Select at least one object.')
+
+        # not a POST
+        response = self.client.get(url, data)
+        self.assertEqual(response.status_code, 405)
+
+    def check_read_conversation(self, view_name, pk, field_value=True):
+        "Check redirection, field updates, invalid cases."
+        #       user1       user2
+        # -----------       -----------  read
+        #           |<------              1
+        #           |------>|
+        #            <------|             1
+        # 1: initially set for the unread test
+        url = reverse(view_name)
+        data = {'tpks': str(pk)}
+        # not yours ; success but no changes
+        self.assertTrue(self.client.login(username='baz', password='pass'))
+        response = self.client.post(url, data)
+        self.assertRedirects(response, reverse('postman:inbox'))
+        m1 = Message.objects.get(pk=pk)
+        self.check_status(m1, status=STATUS_ACCEPTED, is_new=not field_value, is_replied=True, thread=m1)
+        m2 = Message.objects.get(pk=pk+1)
+        self.check_status(m2, status=STATUS_ACCEPTED, parent=m1, is_replied=True, thread=m1)
+        self.check_status(Message.objects.get(pk=pk+2), status=STATUS_ACCEPTED, is_new=not field_value, parent=m2, thread=m1)
+
+        self.assertTrue(self.client.login(username='foo', password='pass'))
+        response = self.client.post(url, data)
+        self.assertRedirects(response, reverse('postman:inbox'))
+        # contrib.messages are already tested with check_read()
+        m1 = Message.objects.get(pk=pk)
+        self.check_status(m1, status=STATUS_ACCEPTED, is_new=field_value, is_replied=True, thread=m1)
+        m2 = Message.objects.get(pk=pk+1)
+        self.check_status(m2, status=STATUS_ACCEPTED, parent=m1, is_replied=True, thread=m1)
+        self.check_status(Message.objects.get(pk=pk+2), status=STATUS_ACCEPTED, is_new=field_value, parent=m2, thread=m1)
+        # missing payload
+        response = self.client.post(url)
+        self.assertRedirects(response, reverse('postman:inbox'))
+
+        # not a POST
+        response = self.client.get(url, data)
+        self.assertEqual(response.status_code, 405)
+
+    def test_read(self):
+        "Test mark-as-read action on messages."
+        pk = self.c21().pk
+        self.c12()
+        self.c21()
+        self.c21()
+        self.check_read('postman:mark-read', 'Messages or conversations successfully marked as read.', pk, False)
+
+    def test_read_conversation(self):
+        "Test mark-as-read action on conversations."
+        m1 = self.c21()
+        m1.thread = m1
+        m2 = self.c12(parent=m1, thread=m1.thread)
+        m1.replied_at = m2.sent_at; m1.save()
+        m3 = self.c21(parent=m2, thread=m2.thread)
+        m2.replied_at = m3.sent_at; m2.save()
+        self.check_read_conversation('postman:mark-read', m1.pk, False)
+
+    def test_unread(self):
+        "Test mark-as-unread action on messages."
+        m1 = self.c21()
+        m1.read_at = now(); m1.save()
+        self.c12()
+        m3 = self.c21()
+        m3.read_at = now(); m3.save()
+        self.c21()
+        self.check_read('postman:mark-unread', 'Messages or conversations successfully marked as unread.', m1.pk, True)
+
+    def test_unread_conversation(self):
+        "Test mark-as-unread action on conversations."
+        m1 = self.c21()
+        m1.read_at = now(); m1.thread = m1
+        m2 = self.c12(parent=m1, thread=m1.thread)
+        m1.replied_at = m2.sent_at; m1.save()
+        m3 = self.c21(parent=m2, thread=m2.thread)
+        m2.replied_at = m3.sent_at; m2.save()
+        m3.read_at = now(); m3.save()
+        self.check_read_conversation('postman:mark-unread', m1.pk, True)
 
 
 class FieldTest(BaseTest):
@@ -1043,22 +1177,20 @@ class MessageManagerTest(BaseTest):
         self.assertListEqual(list(qs.filter(recipient_id=2)), [m])  # param 2, must stay at the end
 
     def test(self):
-        """
-              user1       user2
-        -----------       -----------  read repl
-        arch del             arch del
-                   ---...
-                   ---X            x
-                   ------>|             x    x
-                  |<------|             x    x
-                  |------>
-                   ------>
-                   ------>              x
-                   <------
-                    ...---
-              x       X---
-        """
-
+        "Test the manager."
+        #       user1       user2
+        # -----------       -----------  read repl
+        # arch del             arch del
+        #            ---...
+        #            ---X            x
+        #            ------>|             x    x
+        #           |<------|             x    x
+        #           |------>
+        #            ------>
+        #            ------>              x
+        #            <------
+        #             ...---
+        #       x       X---
         m1 = self.c12(moderation_status=STATUS_PENDING)
         m2 = self.c12(moderation_status=STATUS_REJECTED, recipient_deleted_at=now())
         m3 = self.c12()
@@ -1110,21 +1242,19 @@ class MessageManagerTest(BaseTest):
         self.assertQuerysetEqual(Message.objects.thread(self.user2, Q(thread=m3.pk)), [m3.pk,m4.pk,m5.pk], transform=pk)
         self.assertQuerysetEqual(Message.objects.thread(self.user2, Q(pk=m4.pk)), [m4.pk], transform=pk)
         # mark as archived and deleted
-        """
-              user1       user2
-        -----------       -----------  read repl
-        arch del             arch del
-         X         ---...
-              X    ---X            x
-         X    X    ------>|             x    x
-                  |<------|   X    X    x    x
-                  |------>
-         X         ------>    X
-                   ------>         X    x
-              X    <------
-                    ...---         X
-              x       X---    X
-        """
+        #       user1       user2
+        # -----------       -----------  read repl
+        # arch del             arch del
+        #  X         ---...
+        #       X    ---X            x
+        #  X    X    ------>|             x    x
+        #           |<------|   X    X    x    x
+        #           |------>
+        #  X         ------>    X
+        #            ------>         X    x
+        #       X    <------
+        #             ...---         X
+        #       x       X---    X
         m1.sender_archived = True; m1.save()
         m2.sender_deleted_at = now(); m2.save()
         m3.sender_archived, m3.sender_deleted_at = True, now(); m3.save()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-29 12:26+0200\n"
+"POT-Creation-Date: 2016-11-01 11:05+0100\n"
 "PO-Revision-Date: 2011-02-03 08:41+0000\n"
 "Last-Translator: mikecool <genewoo@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -116,7 +116,7 @@ msgstr "不可能写给一些用户：{users}。"
 msgid "Recipients"
 msgstr "收件人"
 
-#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:33
+#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:35
 #: .\templates\postman\reply.html:4
 msgid "Recipient"
 msgstr "收件人"
@@ -336,27 +336,35 @@ msgstr "归档"
 msgid "Undelete"
 msgstr "取消删除"
 
-#: .\templates\postman\base_folder.html:31
+#: .\templates\postman\base_folder.html:27
+msgid "Mark as read"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:28
+msgid "Mark as unread"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:33
 msgid "Action"
 msgstr "动作"
 
-#: .\templates\postman\base_folder.html:32
+#: .\templates\postman\base_folder.html:34
 msgid "Sender"
 msgstr "寄件人"
 
-#: .\templates\postman\base_folder.html:34
+#: .\templates\postman\base_folder.html:36
 msgid "Subject"
 msgstr "主体"
 
-#: .\templates\postman\base_folder.html:35
+#: .\templates\postman\base_folder.html:37
 msgid "Date"
 msgstr "日期"
 
-#: .\templates\postman\base_folder.html:50
+#: .\templates\postman\base_folder.html:52
 msgid "g:i A,M j,n/j/y"
 msgstr "G:i,M j,y/n/j"
 
-#: .\templates\postman\base_folder.html:57
+#: .\templates\postman\base_folder.html:59
 msgid "No messages."
 msgstr "没有邮件。"
 
@@ -458,7 +466,7 @@ msgstr "收到的"
 msgid "Reply"
 msgstr "回复的"
 
-#: .\templates\postman\sent.html:6
+#: .\templates\postman\sent.html:8
 msgid "Sent"
 msgstr "发送的"
 
@@ -548,6 +556,16 @@ msgctxt "postman_url"
 msgid "^undelete/$"
 msgstr ""
 
+#: .\urls.py:121
+msgctxt "postman_url"
+msgid "^mark-read/$"
+msgstr ""
+
+#: .\urls.py:122
+msgctxt "postman_url"
+msgid "^mark-unread/$"
+msgstr ""
+
 #: .\utils.py:65
 msgid "> "
 msgstr "> "
@@ -580,14 +598,22 @@ msgstr "邮件的收件人至少有一个被拒绝了。"
 msgid "Select at least one object."
 msgstr "至少选择一个对象。"
 
-#: .\views.py:421
+#: .\views.py:427
 msgid "Messages or conversations successfully archived."
 msgstr "邮件或对话已成功存档。"
 
-#: .\views.py:428
+#: .\views.py:434
 msgid "Messages or conversations successfully deleted."
 msgstr "邮件或对话已成功删除。"
 
-#: .\views.py:435
+#: .\views.py:441
 msgid "Messages or conversations successfully recovered."
 msgstr "邮件或对话已成功回收。"
+
+#: .\views.py:452
+msgid "Messages or conversations successfully marked as read."
+msgstr ""
+
+#: .\views.py:458
+msgid "Messages or conversations successfully marked as unread."
+msgstr ""

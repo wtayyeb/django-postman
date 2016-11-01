@@ -18,7 +18,7 @@ from django.views.generic.base import RedirectView
 
 from .views import (InboxView, SentView, ArchivesView, TrashView,
         WriteView, ReplyView, MessageView, ConversationView,
-        ArchiveView, DeleteView, UndeleteView)
+        ArchiveView, DeleteView, UndeleteView, MarkReadView, MarkUnreadView)
 
 
 # user_filter function set
@@ -75,6 +75,8 @@ postman_patterns = [
     url(pgettext_lazy('postman_url', r'^archive/$'), ArchiveView.as_view(), name='archive'),
     url(pgettext_lazy('postman_url', r'^delete/$'), DeleteView.as_view(), name='delete'),
     url(pgettext_lazy('postman_url', r'^undelete/$'), UndeleteView.as_view(), name='undelete'),
+    url(pgettext_lazy('postman_url', r'^mark-read/$'), MarkReadView.as_view(), name='mark-read'),
+    url(pgettext_lazy('postman_url', r'^mark-unread/$'), MarkUnreadView.as_view(), name='mark-unread'),
     # Django 1.9 "HTTP redirects no longer forced to absolute URIs"
     # and test.Client doesn't support relative-path reference, such as url='inbox/' ; ticket/26428
     url(r'^$', RedirectView.as_view(

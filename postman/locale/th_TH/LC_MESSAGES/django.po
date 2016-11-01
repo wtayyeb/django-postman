@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-29 12:26+0200\n"
+"POT-Creation-Date: 2016-11-01 11:05+0100\n"
 "PO-Revision-Date: 2013-08-23 15:03+0000\n"
 "Last-Translator: sipp11 <sipp11@mycapsules.com>\n"
 "Language-Team: Thai (Thailand) (http://www.transifex.com/projects/p/django-"
@@ -117,7 +117,7 @@ msgstr "ไม่สามารถเขียนข้อความถึง
 msgid "Recipients"
 msgstr "ผู้รับ"
 
-#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:33
+#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:35
 #: .\templates\postman\reply.html:4
 msgid "Recipient"
 msgstr "ผู้รับ"
@@ -337,27 +337,35 @@ msgstr "เก็บ"
 msgid "Undelete"
 msgstr "ยกเลิกการลบ"
 
-#: .\templates\postman\base_folder.html:31
+#: .\templates\postman\base_folder.html:27
+msgid "Mark as read"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:28
+msgid "Mark as unread"
+msgstr ""
+
+#: .\templates\postman\base_folder.html:33
 msgid "Action"
 msgstr "เพิ่มเติม"
 
-#: .\templates\postman\base_folder.html:32
+#: .\templates\postman\base_folder.html:34
 msgid "Sender"
 msgstr "ผู้ส่ง"
 
-#: .\templates\postman\base_folder.html:34
+#: .\templates\postman\base_folder.html:36
 msgid "Subject"
 msgstr "ชื่อเรื่อง"
 
-#: .\templates\postman\base_folder.html:35
+#: .\templates\postman\base_folder.html:37
 msgid "Date"
 msgstr "วันที่"
 
-#: .\templates\postman\base_folder.html:50
+#: .\templates\postman\base_folder.html:52
 msgid "g:i A,M j,n/j/y"
 msgstr "g:i A,M j,n/j/y"
 
-#: .\templates\postman\base_folder.html:57
+#: .\templates\postman\base_folder.html:59
 msgid "No messages."
 msgstr "ไม่มีข้อความ"
 
@@ -459,7 +467,7 @@ msgstr "ได้รับ"
 msgid "Reply"
 msgstr "ตอบกลับ"
 
-#: .\templates\postman\sent.html:6
+#: .\templates\postman\sent.html:8
 msgid "Sent"
 msgstr "ส่ง"
 
@@ -550,6 +558,16 @@ msgctxt "postman_url"
 msgid "^undelete/$"
 msgstr ""
 
+#: .\urls.py:121
+msgctxt "postman_url"
+msgid "^mark-read/$"
+msgstr ""
+
+#: .\urls.py:122
+msgctxt "postman_url"
+msgid "^mark-unread/$"
+msgstr ""
+
 #: .\utils.py:65
 msgid "> "
 msgstr "> "
@@ -582,14 +600,22 @@ msgstr "ข้อความถูกปฏิเสธจากอย่าง
 msgid "Select at least one object."
 msgstr "เลือกอย่างน้อย 1 อย่าง"
 
-#: .\views.py:421
+#: .\views.py:427
 msgid "Messages or conversations successfully archived."
 msgstr "ข้อความหรือบทสนทนาถูกจัดเก็บเรียบร้อยแล้ว"
 
-#: .\views.py:428
+#: .\views.py:434
 msgid "Messages or conversations successfully deleted."
 msgstr "ข้อความหรือบทสนทนาถูกลบเรียบร้อยแล้ว"
 
-#: .\views.py:435
+#: .\views.py:441
 msgid "Messages or conversations successfully recovered."
 msgstr "ข้อความหรือบทสนทนาถูกกู้คืนเรียบร้อยแล้ว"
+
+#: .\views.py:452
+msgid "Messages or conversations successfully marked as read."
+msgstr ""
+
+#: .\views.py:458
+msgid "Messages or conversations successfully marked as unread."
+msgstr ""

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-postman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-29 12:26+0200\n"
-"PO-Revision-Date: 2010-12-15 17:19+0100\n"
+"POT-Creation-Date: 2016-11-01 11:05+0100\n"
+"PO-Revision-Date: 2016-11-01 11:06+0100\n"
 "Last-Translator: Patrick Samson <maxcom@laposte.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -126,7 +126,7 @@ msgstr "Écrire à certains utilisateurs n'est pas possible : {users}."
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:33
+#: .\forms.py:155 .\forms.py:168 .\templates\postman\base_folder.html:35
 #: .\templates\postman\reply.html:4
 msgid "Recipient"
 msgstr "Destinataire"
@@ -349,27 +349,35 @@ msgstr "Archiver"
 msgid "Undelete"
 msgstr "Restaurer"
 
-#: .\templates\postman\base_folder.html:31
+#: .\templates\postman\base_folder.html:27
+msgid "Mark as read"
+msgstr "Marquer lu"
+
+#: .\templates\postman\base_folder.html:28
+msgid "Mark as unread"
+msgstr "Marquer non lu"
+
+#: .\templates\postman\base_folder.html:33
 msgid "Action"
 msgstr "Action"
 
-#: .\templates\postman\base_folder.html:32
+#: .\templates\postman\base_folder.html:34
 msgid "Sender"
 msgstr "Expéditeur"
 
-#: .\templates\postman\base_folder.html:34
+#: .\templates\postman\base_folder.html:36
 msgid "Subject"
 msgstr "Objet"
 
-#: .\templates\postman\base_folder.html:35
+#: .\templates\postman\base_folder.html:37
 msgid "Date"
 msgstr "Date"
 
-#: .\templates\postman\base_folder.html:50
+#: .\templates\postman\base_folder.html:52
 msgid "g:i A,M j,n/j/y"
 msgstr "G:i,j b,j/n/y"
 
-#: .\templates\postman\base_folder.html:57
+#: .\templates\postman\base_folder.html:59
 msgid "No messages."
 msgstr "Pas de message."
 
@@ -474,7 +482,7 @@ msgstr "Reçu"
 msgid "Reply"
 msgstr "Répondre"
 
-#: .\templates\postman\sent.html:6
+#: .\templates\postman\sent.html:8
 msgid "Sent"
 msgstr "Envoyé"
 
@@ -566,6 +574,16 @@ msgctxt "postman_url"
 msgid "^undelete/$"
 msgstr "^restaurer/$"
 
+#: .\urls.py:121
+msgctxt "postman_url"
+msgid "^mark-read/$"
+msgstr "^marquer-lu/$"
+
+#: .\urls.py:122
+msgctxt "postman_url"
+msgid "^mark-unread/$"
+msgstr "^marquer-non-lu/$"
+
 #: .\utils.py:65
 msgid "> "
 msgstr "> "
@@ -598,14 +616,22 @@ msgstr "Message rejeté pour au moins un destinataire."
 msgid "Select at least one object."
 msgstr "Sélectionner au moins un objet."
 
-#: .\views.py:421
+#: .\views.py:427
 msgid "Messages or conversations successfully archived."
 msgstr "Messages ou conversations archivés avec succès."
 
-#: .\views.py:428
+#: .\views.py:434
 msgid "Messages or conversations successfully deleted."
 msgstr "Messages ou conversations supprimés avec succès."
 
-#: .\views.py:435
+#: .\views.py:441
 msgid "Messages or conversations successfully recovered."
 msgstr "Messages ou conversations restaurés avec succès."
+
+#: .\views.py:452
+msgid "Messages or conversations successfully marked as read."
+msgstr "Messages ou conversations marqués lus avec succès."
+
+#: .\views.py:458
+msgid "Messages or conversations successfully marked as unread."
+msgstr "Messages ou conversations marqués non-lus avec succès."
