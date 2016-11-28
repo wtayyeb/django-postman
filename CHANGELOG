@@ -2,6 +2,11 @@
 Django Postman changelog
 ========================
 
+Version 3.5.0, November 2016
+----------------------------
+* New feature: mark as read or unread.
+* Added a setting: POSTMAN_I18N_URLS.
+
 Version 3.4.0, October 2016
 ---------------------------
 * Notification emails can now be sent in HTML (issue #79).
