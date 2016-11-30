@@ -15,10 +15,17 @@ from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.text import Truncator
 from django.utils.timezone import now
 from django.utils.translation import ugettext, ugettext_lazy as _
+if getattr(settings, 'POSTMAN_I18N_URLS', False):
+    from django.utils.translation import pgettext_lazy
+else:
+    def pgettext_lazy(c, m): return m
 
-from . import OPTION_MESSAGES
 from .query import PostmanQuery
 from .utils import email_visitor, notify_user
+
+# options
+# Translators: keep consistency with the <option> parameter in url translations ; 'm' stands for 'messages'
+OPTION_MESSAGES = pgettext_lazy('postman_url', 'm')
 
 # moderation constants
 STATUS_PENDING = 'p'

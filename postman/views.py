@@ -24,10 +24,9 @@ from django.utils.translation import ugettext as _, ugettext_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import FormView, TemplateView, View
 
-from . import OPTION_MESSAGES
 from .fields import autocompleter_app
 from .forms import WriteForm, AnonymousWriteForm, QuickReplyForm, FullReplyForm
-from .models import Message, get_order_by
+from .models import OPTION_MESSAGES, Message, get_order_by
 from .utils import format_subject, format_body
 
 login_required_m = method_decorator(login_required)

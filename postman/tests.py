@@ -58,11 +58,10 @@ from django.utils.six.moves import reload_module
 from django.utils.timezone import localtime, now
 from django.utils.translation import activate, deactivate
 
-from . import OPTION_MESSAGES
 from .api import pm_broadcast, pm_write
 # because of reload()'s, do "from postman.fields import CommaSeparatedUserField" just before needs
 # because of reload()'s, do "from postman.forms import xxForm" just before needs
-from .models import ORDER_BY_KEY, ORDER_BY_MAPPER, Message, PendingMessage,\
+from .models import OPTION_MESSAGES, ORDER_BY_KEY, ORDER_BY_MAPPER, Message, PendingMessage,\
         STATUS_PENDING, STATUS_ACCEPTED, STATUS_REJECTED,\
         get_order_by, get_user_representation, get_user_name
 # because of reload()'s, do "from postman.utils import notification" just before needs
@@ -78,7 +77,7 @@ class GenericTest(TestCase):
     Usual generic tests.
     """
     def test_version(self):
-        self.assertEqual(sys.modules['postman'].__version__, "3.5.0")
+        self.assertEqual(sys.modules['postman'].__version__, "3.5.1")
 
 
 class TransactionViewTest(TransactionTestCase):
