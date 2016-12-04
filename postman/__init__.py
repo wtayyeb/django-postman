@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 # following PEP 386: N.N[.N]+[{a|b|c|rc}N[.N]+][.postN][.devN]
 VERSION = (3, 5, 1)
 PREREL = ()
-POST = 0
+POST = 1
 DEV = 0
 
 # as of Django 1.7
