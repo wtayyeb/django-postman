@@ -185,6 +185,9 @@ A complete set of working templates is provided with the application.
 You may use it as it is with a CSS design of yours, re-use it or extend some parts of it,
 or only view it as an example.
 
+Don't forget that you shouldn't modify the templates provided into the package
+(changes are lost with an application update) but use a copied set pointed to by the ``DIRS`` entry in TEMPLATES setting.
+
 You may need to adjust some templates to match your version of Django.
 Permute the comment tags for the lines denoted by the marks: {# dj v1.x #} in:
 
@@ -262,4 +265,4 @@ Examples
 
 :file:`urls.py`::
 
-    (r'^messages/', include('postman.urls', namespace='postman', app_name='postman')),
+    url(r'^messages/', include('postman.urls', namespace='postman', app_name='postman')),
