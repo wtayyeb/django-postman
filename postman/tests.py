@@ -1978,7 +1978,8 @@ class ApiTest(BaseTest):
 
     def test_pm_write(self):
         "Test the basic minimal use."
-        pm_write(sender=self.user1, recipient=self.user2, subject='s', body='b')
+        msg = pm_write(sender=self.user1, recipient=self.user2, subject='s', body='b')
+        self.assertTrue(isinstance(msg, Message))
         m = Message.objects.get()
         self.check_status(m, status=STATUS_ACCEPTED, moderation_date=True)
         self.check_now(m.moderation_date)
@@ -1987,38 +1988,44 @@ class ApiTest(BaseTest):
 
     def test_pm_write_skip_notification(self):
         "Test the notification skipping."
-        pm_write(sender=self.user1, recipient=self.user2, subject='s', skip_notification=True)
+        msg = pm_write(sender=self.user1, recipient=self.user2, subject='s', skip_notification=True)
+        self.assertTrue(isinstance(msg, Message))
         self.assertEqual(len(mail.outbox), 0)
 
     def test_pm_write_auto_archive(self):
         "Test the auto_archive parameter."
-        pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_archive=True)
+        msg = pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_archive=True)
+        self.assertTrue(isinstance(msg, Message))
         m = Message.objects.get()
         self.check_status(m, status=STATUS_ACCEPTED, moderation_date=True, sender_archived=True)
 
     def test_pm_write_auto_delete(self):
         "Test the auto_delete parameter."
-        pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_delete=True)
+        msg = pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_delete=True)
+        self.assertTrue(isinstance(msg, Message))
         m = Message.objects.get()
         self.check_status(m, status=STATUS_ACCEPTED, moderation_date=True, sender_deleted_at=True)
         self.check_now(m.sender_deleted_at)
 
     def test_pm_write_auto_moderators_accepted(self):
         "Test the auto_moderators parameter, moderate as accepted."
-        pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_moderators=lambda m: True)
+        msg = pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_moderators=lambda m: True)
+        self.assertTrue(isinstance(msg, Message))
         m = Message.objects.get()
         self.check_status(m, status=STATUS_ACCEPTED, moderation_date=True)
 
     def test_pm_write_auto_moderators_pending(self):
         "Test the auto_moderators parameter, no moderation decision is taken. Test the parameter as a list."
-        pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_moderators=[lambda m: None])
+        msg = pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_moderators=[lambda m: None])
+        self.assertTrue(isinstance(msg, Message))
         m = Message.objects.get()
         self.check_status(m)
         self.assertEqual(len(mail.outbox), 0)  # no one to notify
 
     def test_pm_write_auto_moderators_rejected(self):
         "Test the auto_moderators parameter, moderate as rejected. Test the parameter as a tuple."
-        pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_moderators=(lambda m: False, ))
+        msg = pm_write(sender=self.user1, recipient=self.user2, subject='s', auto_moderators=(lambda m: False, ))
+        self.assertTrue(isinstance(msg, Message))
         m = Message.objects.get()
         self.check_status(m, status=STATUS_REJECTED, moderation_date=True, recipient_deleted_at=True)
         self.check_now(m.moderation_date)
