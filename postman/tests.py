@@ -44,6 +44,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.exceptions import ValidationError
+from django.core.management import call_command
 from django.core.urlresolvers import reverse, clear_url_caches, get_resolver, get_urlconf
 from django.db.models import Q
 from django.http import QueryDict
@@ -54,6 +55,7 @@ if VERSION >= (1, 10):
 from django.utils.encoding import force_text
 from django.utils.formats import localize
 from django.utils import six
+from django.utils.six import StringIO
 from django.utils.six.moves import reload_module
 from django.utils.timezone import localtime, now
 from django.utils.translation import activate, deactivate
@@ -2031,3 +2033,151 @@ class ApiTest(BaseTest):
         self.check_now(m.moderation_date)
         self.check_now(m.recipient_deleted_at)
         self.assertEqual(len(mail.outbox), 0)  # sender is not notified in the case of auto moderation
+
+
+class CommandTest(BaseTest):
+    """
+    Test the custom commands.
+    """
+    def test_cleanup_empty(self):
+        "Basic, without messages."
+        out = StringIO()
+        call_command('postman_cleanup', verbosity=1, stdout=out)  # 1 is the only implemented verbosity level
+        self.assertTrue(out.getvalue().startswith('Erase messages '))
+
+    def test_cleanup_messages(self):
+        "Only individual messages."
+        good_date = now() - timedelta(days=30)  # the default delay
+        m1 = self.create()
+        m2 = self.create(sender_deleted_at=good_date, recipient_deleted_at=good_date)  # the only good candidate
+        m3 = self.create(sender_deleted_at=good_date, recipient_deleted_at=now())
+        m4 = self.create(sender_deleted_at=now(), recipient_deleted_at=good_date)
+        m5 = self.create(sender_deleted_at=good_date)
+        m6 = self.create(recipient_deleted_at=good_date)
+        out = StringIO()
+        call_command('postman_cleanup', verbosity=0, stdout=out)
+        self.assertEqual(out.getvalue(), '')
+        self.assertListEqual(list(Message.objects.all()), [m6, m5, m4, m3, m1])
+
+    def test_cleanup_conversations(self):
+        #       user1       user2
+        # -----------       -----------
+        #      del             del
+        #       ok   ------>|   ok
+        #       ok   <------|   ok      good candidate
+        #       ok   ------>|   ok
+        #       ok   <------|   bad     date is not old enough (could be any of the four dates)
+        #       ok   ------>|   ok
+        #  missing   <------|   ok      one message not deleted by one of the participants (could be any of the four dates)
+        good_date = now() - timedelta(days=30)  # the default delay
+        c1_m1 = self.c12(sender_deleted_at=good_date, recipient_deleted_at=good_date)
+        c1_m1.thread = c1_m1; c1_m1.save()
+        c1_m2 = self.c21(parent=c1_m1, thread=c1_m1.thread, sender_deleted_at=good_date, recipient_deleted_at=good_date)
+
+        c2_m1 = self.c12(sender_deleted_at=good_date, recipient_deleted_at=good_date)
+        c2_m1.thread = c2_m1; c2_m1.save()
+        c2_m2 = self.c21(parent=c2_m1, thread=c2_m1.thread, sender_deleted_at=now(), recipient_deleted_at=good_date)
+
+        c3_m1 = self.c12(sender_deleted_at=good_date, recipient_deleted_at=good_date)
+        c3_m1.thread = c3_m1; c3_m1.save()
+        c3_m2 = self.c21(parent=c3_m1, thread=c3_m1.thread, sender_deleted_at=good_date)  # missing recipient_deleted_at
+        
+        out = StringIO()
+        call_command('postman_cleanup', verbosity=0, stdout=out)
+        self.assertEqual(out.getvalue(), '')
+        self.assertListEqual(list(Message.objects.all()), [c3_m2, c3_m1, c2_m2, c2_m1])
+
+    def test_cleanup_days(self):
+        "Test the 'days' option."
+        delay = 5  # any but the default delay
+        good_date = now() - timedelta(days=delay)
+        m1 = self.create(sender_deleted_at=good_date, recipient_deleted_at=good_date)  # the only good candidate
+        m2 = self.create(sender_deleted_at=good_date, recipient_deleted_at=good_date + timedelta(days=1))
+        out = StringIO()
+        call_command('postman_cleanup', verbosity=0, stdout=out, days=delay)
+        self.assertEqual(out.getvalue(), '')
+        self.assertListEqual(list(Message.objects.all()), [m2])
+
+    def test_checkup_empty(self):
+        "Basic, without messages."
+        out = StringIO()
+        call_command('postman_checkup', verbosity=1, stdout=out)  # 1 is the only implemented verbosity level
+        lines = out.getvalue().splitlines()
+        self.assertTrue(lines[0].startswith('Checking messages ', 9))  # begin with "HH:MM:SS "
+        self.assertTrue(lines[1].startswith('All is correct.', 9))
+
+    def check_checkup(self, reasons):
+        count = len(reasons)
+        out, err = StringIO(), StringIO()
+        call_command('postman_checkup', verbosity=1, stdout=out, stderr=err)
+        lines = out.getvalue().splitlines()
+        self.assertTrue(lines[-1].startswith('Number of inconsistencies found: {0}'.format(count), 9))
+        lines = err.getvalue().splitlines()
+        for i, reason in enumerate(reasons):
+            # because of possible WARNINGS in some Dj versions, do a reverse read, from the end
+            self.assertEqual(lines[-3 * (1+i)], reason)
+
+    def test_checkup_parties(self):
+        m = self.create()
+        self.check_checkup(["Visitor's email is missing.", 'Sender and Recipient cannot be both undefined.'])
+
+    def test_checkup_email(self):
+        m = self.c12(email=self.email)
+        self.check_checkup(["Visitor's email is in excess."])
+
+    def test_checkup_dates(self):
+        delta = timedelta(minutes=1)
+        m = self.c12(
+            read_at=now() - delta,
+            sender_deleted_at=now() - delta,
+            recipient_deleted_at=now() - delta,
+        )
+        self.check_checkup([
+            "Deletion date by recipient must be later than sending date.",
+            "Deletion date by sender must be later than sending date.",
+            "Reading date must be later than sending date.",
+        ])
+
+    def test_checkup_replied(self):
+        delta = timedelta(minutes=1)
+        m = self.c12(replied_at=now() - delta)
+        self.check_checkup([
+            "The message cannot be replied without being in a conversation.",
+            "Response date cannot be set without at least one reply.",
+            "The message cannot be replied without having been read.",
+            "Response date must be later than sending date.",
+        ])
+
+    def test_checkup_reply_after_read(self):
+        delta = timedelta(minutes=1)
+        m = self.c12(
+            read_at=now() + 2 * delta,
+            replied_at=now() + delta,
+        )
+        self.check_checkup([
+            "The message cannot be replied without being in a conversation.",
+            "Response date cannot be set without at least one reply.",
+            "Response date must be later than reading date.",
+        ])
+
+    def test_checkup_reply(self):
+        p = self.c12()
+        m = self.c21(parent=p)  # thread is missing
+        self.check_checkup(["The message cannot be a reply without being in a conversation."])
+
+    def test_checkup_in_conversation(self):
+        p = self.c12()  # thread is missing
+        m = self.c21(parent=p, thread=p)
+        self.check_checkup(["The reply and its parent are not in a conversation in common."])
+
+    def test_checkup_same_conversation(self):
+        """
+             parent  thread
+        m1
+        m2           1  <- would be 2 if correct
+        m3   2       2
+        """
+        fake = self.c12()
+        p = self.c12(thread=fake)  # thread is incorrect
+        m = self.c21(parent=p, thread=p)
+        self.check_checkup(["The reply and its parent are not in a conversation in common."])
