@@ -1,19 +1,20 @@
 from __future__ import unicode_literals
-import datetime
+from datetime import datetime
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.db.models import Q, F, Count
 
 from postman.models import Message
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = "Can be run as a cron job or directly to check-up data consistency in the database."
 
-    def handle_noargs(self, **options):
+    # no more NoArgsCommand and handle_noargs with Dj >= 1.8
+    def handle(self, *args, **options):
         verbose = int(options.get('verbosity'))
         if verbose >= 1:
-            self.stdout.write(datetime.datetime.now().strftime("%H:%M:%S ") + "Checking messages and conversations for inconsistencies...\n")
+            self.stdout.write(datetime.now().strftime("%H:%M:%S ") + "Checking messages and conversations for inconsistencies...")
         checks = [
             ("Sender and Recipient cannot be both undefined.", Q(sender__isnull=True, recipient__isnull=True)),
             ("Visitor's email is in excess.", Q(sender__isnull=False, recipient__isnull=False) & ~Q(email='')),
@@ -44,15 +45,15 @@ class Command(NoArgsCommand):
                 count += len(msgs)
                 self.report_errors(c[0], msgs)
         if verbose >= 1:
-            self.stdout.write(datetime.datetime.now().strftime("%H:%M:%S ") +
-                ("Number of inconsistencies found: {0}. See details on the error stream.\n".format(count) if count
-                else "All is correct.\n"))
+            self.stdout.write(datetime.now().strftime("%H:%M:%S ") +
+                ("Number of inconsistencies found: {0}. See details on the error stream.".format(count) if count
+                else "All is correct."))
 
     def report_errors(self, reason, msgs):
-        self.stderr.write(reason + '\n')
-        self.stderr.write("  {0:6} {1:5} {2:5} {3:10} {4:6} {5:6} {6:16} {7:16} {8:16}\n".format(
+        self.stderr.write(reason)
+        self.stderr.write("  {0:6} {1:5} {2:5} {3:10} {4:6} {5:6} {6:16} {7:16} {8:16}".format(
             "Id","From","To","Email","Parent","Thread","Sent","Read","Replied"))
         for msg in msgs:
             self.stderr.write(
-                "  {0.pk:6} {0.sender_id:5} {0.recipient_id:5} {0.email:10.10} {0.parent_id:6} {0.thread_id:6}"
-                " {0.sent_at!s:16.16} {0.read_at!s:16.16} {0.replied_at!s:16.16}\n".format(msg))
+                "  {0.pk:6} {0.sender_id!s:5} {0.recipient_id!s:5} {0.email:10.10} {0.parent_id!s:6} {0.thread_id!s:6}"
+                " {0.sent_at!s:16.16} {0.read_at!s:16.16} {0.replied_at!s:16.16}".format(msg))
