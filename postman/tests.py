@@ -125,6 +125,7 @@ class BaseTest(TestCase):
             'POSTMAN_DISALLOW_MULTIRECIPIENTS',
             'POSTMAN_DISALLOW_COPIES_ON_REPLY',
             'POSTMAN_DISABLE_USER_EMAILING',
+            'POSTMAN_FROM_EMAIL',
             'POSTMAN_AUTO_MODERATE_AS',
             'POSTMAN_NOTIFIER_APP',
             'POSTMAN_SHOW_USER_AS',
@@ -1892,6 +1893,26 @@ class UtilsTest(BaseTest):
         self.check_email('email_html_only', recipient_list, m, action, site, ('Html only\n', '<div>Html only</div>\n'))
         self.check_email('email_html_and_empty_txt', recipient_list, m, action, site, ('Html and empty Text\n', '<div>Html and empty Text</div>\n'))
         self.check_email('email_html_and_txt', recipient_list, m, action, site, ('Alternate Text\n', '<div>Html and Text</div>\n'))
+
+    def check_from_email(self, subject_template, message_template_name, recipient_list, object, action, site, from_email):
+        mail.outbox = []
+        email(subject_template, message_template_name, recipient_list, object, action, site)
+        self.assertEqual(mail.outbox[0].from_email, from_email)
+
+    def test_from_email(self):
+        "Test the POSTMAN_FROM_EMAIL setting."
+        m = self.c12()
+        recipient_list = ['recipient@domain.tld']
+        action = 'some_action'
+        site = None
+        subject_template = 'postman/email_visitor_subject.txt'
+        message_template_name = 'postman_for_tests/email_txt_only'
+        self.check_from_email(subject_template, message_template_name, recipient_list, m, action, site, settings.DEFAULT_FROM_EMAIL)
+
+        custom_from_email = 'postman@host.tld'
+        settings.POSTMAN_FROM_EMAIL = custom_from_email
+        self.reload_modules()
+        self.check_from_email(subject_template, message_template_name, recipient_list, m, action, site, custom_from_email)
 
     def test_get_order_by(self):
         "Test get_order_by()."

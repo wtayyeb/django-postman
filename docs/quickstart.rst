@@ -89,6 +89,13 @@ You may specify some additional configuration options in your :file:`settings.py
 
     *Defaults to*: False.
 
+``POSTMAN_FROM_EMAIL``
+    *New in version 3.6.0.*
+
+    Set it if you want to override the default 'from' field value.
+
+    *Defaults to*: DEFAULT_FROM_EMAIL.
+
 ``POSTMAN_AUTO_MODERATE_AS``
     The default moderation status when no auto-moderation functions, if any, were decisive.
 
