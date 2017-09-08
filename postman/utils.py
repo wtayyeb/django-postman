@@ -57,6 +57,8 @@ else:
 
 # to disable email notification to users
 DISABLE_USER_EMAILING = getattr(settings, 'POSTMAN_DISABLE_USER_EMAILING', False)
+# custom default 'from'
+POSTMAN_FROM_EMAIL = getattr(settings, 'POSTMAN_FROM_EMAIL', settings.DEFAULT_FROM_EMAIL)
 
 # default wrap width; referenced in forms.py
 WRAP_WIDTH = 55
@@ -114,7 +116,7 @@ def email(subject_template, message_template_name, recipient_list, object, actio
             raise e  # At least a .html or a .txt template must be usable
         message = strip_tags(html_message)  # fallback
     # during the development phase, consider using the setting: EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True, html_message=html_message)
+    send_mail(subject, message, POSTMAN_FROM_EMAIL, recipient_list, fail_silently=True, html_message=html_message)
 
 
 def email_visitor(object, action, site):
