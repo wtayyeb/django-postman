@@ -228,7 +228,8 @@ class WriteView(ComposeMixin, FormView):
         return super(WriteView, self).dispatch(*args, **kwargs)
 
     def get_form_class(self):
-        return self.form_classes[0] if self.request.user.is_authenticated() else self.form_classes[1]
+        is_authenticated = self.request.user.is_authenticated if VERSION >= (1, 10) else self.request.user.is_authenticated()
+        return self.form_classes[0 if is_authenticated else 1]
 
     def get_initial(self):
         initial = super(WriteView, self).get_initial()
@@ -251,7 +252,8 @@ class WriteView(ComposeMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super(WriteView, self).get_form_kwargs()
         if isinstance(self.autocomplete_channels, tuple) and len(self.autocomplete_channels) == 2:
-            channel = self.autocomplete_channels[self.request.user.is_anonymous()]
+            is_anonymous = self.request.user.is_anonymous if VERSION >= (1, 10) else self.request.user.is_anonymous()
+            channel = self.autocomplete_channels[1 if is_anonymous else 0]
         else:
             channel = self.autocomplete_channels
         kwargs['channel'] = channel
